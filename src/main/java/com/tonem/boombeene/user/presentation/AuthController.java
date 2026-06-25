@@ -4,7 +4,7 @@ import com.tonem.boombeene.user.application.UserService;
 import com.tonem.boombeene.user.dto.LoginRequest;
 import com.tonem.boombeene.user.dto.SignupRequest;
 import com.tonem.boombeene.user.dto.UserResponse;
-import com.tonem.boombeene.global.common.UserPrincipal;
+import com.tonem.boombeene.user.security.UserPrincipal;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;

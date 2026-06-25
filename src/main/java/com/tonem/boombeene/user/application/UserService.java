@@ -8,7 +8,6 @@ import com.tonem.boombeene.user.dto.UserDto;
 import com.tonem.boombeene.user.exception.DuplicateEmailException;
 import com.tonem.boombeene.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,10 +21,14 @@ public class UserService {
 
     @Transactional
     public void signup(SignupRequest request) {
+        validateEmailNotDuplicated(request.email());
+
         String encodedPassword = passwordEncoder.encode(request.password());
-        try {
-            userRepository.save(User.create(request.email(), encodedPassword, request.nickname()));
-        } catch (DataIntegrityViolationException e) {
+        userRepository.save(User.create(request.email(), encodedPassword, request.nickname()));
+    }
+
+    private void validateEmailNotDuplicated(String email) {
+        if (userRepository.existsByEmail(email)) {
             throw new DuplicateEmailException();
         }
     }

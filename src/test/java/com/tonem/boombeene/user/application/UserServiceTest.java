@@ -19,6 +19,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -52,11 +54,25 @@ class UserServiceTest {
     @Test
     void signupThrowsWhenEmailAlreadyExists() {
         var request = new SignupRequest("me@example.com", "password123", "nickname");
-        when(passwordEncoder.encode("password123")).thenReturn("encoded-password");
-        when(userRepository.save(any(User.class))).thenThrow(new DataIntegrityViolationException("duplicate"));
+        when(userRepository.existsByEmail("me@example.com")).thenReturn(true);
 
         assertThatThrownBy(() -> userService.signup(request))
                 .isInstanceOf(DuplicateEmailException.class);
+        verify(passwordEncoder, never()).encode(any());
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void signupRethrowsDataIntegrityViolationFromSave() {
+        var request = new SignupRequest("me@example.com", "password123", "nickname");
+        var exception = new DataIntegrityViolationException("other constraint");
+        when(userRepository.existsByEmail("me@example.com")).thenReturn(false);
+        when(passwordEncoder.encode("password123")).thenReturn("encoded-password");
+        when(userRepository.save(any(User.class))).thenThrow(exception);
+
+        assertThatThrownBy(() -> userService.signup(request))
+                .isSameAs(exception);
+        verify(userRepository, times(1)).existsByEmail("me@example.com");
     }
 
     @Test

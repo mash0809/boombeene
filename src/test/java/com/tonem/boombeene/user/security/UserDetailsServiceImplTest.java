@@ -1,7 +1,6 @@
 package com.tonem.boombeene.user.security;
 
 import com.tonem.boombeene.global.common.EntityNotFoundException;
-import com.tonem.boombeene.global.common.UserPrincipal;
 import com.tonem.boombeene.user.application.UserService;
 import com.tonem.boombeene.user.dto.UserAuthDto;
 import org.junit.jupiter.api.Test;
@@ -9,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -46,6 +46,6 @@ class UserDetailsServiceImplTest {
                 .thenThrow(new EntityNotFoundException("User", "missing@example.com"));
 
         assertThatThrownBy(() -> userDetailsService.loadUserByUsername("missing@example.com"))
-                .isInstanceOf(EntityNotFoundException.class);
+                .isInstanceOf(UsernameNotFoundException.class);
     }
 }
