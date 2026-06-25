@@ -1,6 +1,6 @@
 package com.tonem.boombeene.store.presentation;
 
-import com.tonem.boombeene.store.application.StoreService;
+import com.tonem.boombeene.store.application.StoreSearchService;
 import com.tonem.boombeene.store.dto.NearbySearchRequest;
 import com.tonem.boombeene.store.dto.StoreResponse;
 import jakarta.validation.Valid;
@@ -17,11 +17,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StoreController {
 
-    private final StoreService storeService;
+    private final StoreSearchService storeSearchService;
 
     @PostMapping("/nearby")
     public List<StoreResponse> searchNearby(@Valid @RequestBody NearbySearchRequest request) {
-        return storeService.searchNearby(request).stream()
+        return storeSearchService.searchNearby(request).stream()
                 .map(StoreResponse::from)
                 .toList();
     }

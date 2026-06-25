@@ -1,10 +1,9 @@
 package com.tonem.boombeene.store.application;
 
 import com.tonem.boombeene.store.client.KakaoDocument;
-import com.tonem.boombeene.store.client.KakaoLocalApiClient;
-import com.tonem.boombeene.store.dto.NearbySearchRequest;
 import com.tonem.boombeene.store.dto.StoreDto;
 import com.tonem.boombeene.store.entity.Store;
+import com.tonem.boombeene.store.entity.StoreCategory;
 import com.tonem.boombeene.store.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,12 +20,9 @@ import java.util.stream.Collectors;
 public class StoreService {
 
     private final StoreRepository storeRepository;
-    private final KakaoLocalApiClient kakaoLocalApiClient;
 
     @Transactional
-    public List<StoreDto> searchNearby(NearbySearchRequest request) {
-        List<KakaoDocument> documents = kakaoLocalApiClient.searchByCategory(
-                request.latitude(), request.longitude(), request.radius(), request.category().getKakaoGroupCode());
+    public List<StoreDto> upsertAll(List<KakaoDocument> documents, StoreCategory category) {
         if (documents.isEmpty()) {
             return List.of();
         }
@@ -45,7 +41,7 @@ public class StoreService {
             if (store != null) {
                 store.updateLocation(document.placeName(), latitude, longitude);
             } else {
-                store = Store.create(document.id(), document.placeName(), latitude, longitude, request.category());
+                store = Store.create(document.id(), document.placeName(), latitude, longitude, category);
                 newStores.add(store);
             }
 
