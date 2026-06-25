@@ -1,15 +1,14 @@
 package com.tonem.boombeene.user.security;
 
-import com.tonem.boombeene.user.domain.User;
-import com.tonem.boombeene.user.repository.UserRepository;
+import com.tonem.boombeene.common.exception.EntityNotFoundException;
+import com.tonem.boombeene.common.security.UserPrincipal;
+import com.tonem.boombeene.user.application.UserService;
+import com.tonem.boombeene.user.dto.UserAuthDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -19,18 +18,21 @@ import static org.mockito.Mockito.when;
 class UserDetailsServiceImplTest {
 
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
 
     @InjectMocks
     private UserDetailsServiceImpl userDetailsService;
 
     @Test
     void loadUserByUsernameReturnsUserPrincipal() {
-        var user = new User("me@example.com", "encoded-password", "nickname");
-        when(userRepository.findByEmail("me@example.com")).thenReturn(Optional.of(user));
+        var user = new UserAuthDto(1L, "me@example.com", "encoded-password");
+        when(userService.getByEmail("me@example.com")).thenReturn(user);
 
         var userDetails = userDetailsService.loadUserByUsername("me@example.com");
 
+        assertThat(userDetails).isInstanceOf(UserPrincipal.class);
+        assertThat(((UserPrincipal) userDetails).getUserId()).isEqualTo(1L);
+        assertThat(((UserPrincipal) userDetails).getEmail()).isEqualTo("me@example.com");
         assertThat(userDetails.getUsername()).isEqualTo("me@example.com");
         assertThat(userDetails.getPassword()).isEqualTo("encoded-password");
         assertThat(userDetails.getAuthorities())
@@ -40,9 +42,10 @@ class UserDetailsServiceImplTest {
 
     @Test
     void loadUserByUsernameThrowsWhenUserDoesNotExist() {
-        when(userRepository.findByEmail("missing@example.com")).thenReturn(Optional.empty());
+        when(userService.getByEmail("missing@example.com"))
+                .thenThrow(new EntityNotFoundException("User", "missing@example.com"));
 
         assertThatThrownBy(() -> userDetailsService.loadUserByUsername("missing@example.com"))
-                .isInstanceOf(UsernameNotFoundException.class);
+                .isInstanceOf(EntityNotFoundException.class);
     }
 }

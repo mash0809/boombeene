@@ -1,21 +1,21 @@
 package com.tonem.boombeene.user.application;
 
-import com.tonem.boombeene.user.domain.User;
+import com.tonem.boombeene.user.domain.entity.User;
 import com.tonem.boombeene.user.dto.SignupRequest;
 import com.tonem.boombeene.user.exception.DuplicateEmailException;
-import com.tonem.boombeene.user.repository.UserRepository;
+import com.tonem.boombeene.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,7 +34,6 @@ class UserServiceTest {
     @Test
     void signupEncodesPasswordAndSavesUser() {
         var request = new SignupRequest("me@example.com", "password123", "nickname");
-        when(userRepository.existsByEmail("me@example.com")).thenReturn(false);
         when(passwordEncoder.encode("password123")).thenReturn("encoded-password");
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -50,12 +49,10 @@ class UserServiceTest {
     @Test
     void signupThrowsWhenEmailAlreadyExists() {
         var request = new SignupRequest("me@example.com", "password123", "nickname");
-        when(userRepository.existsByEmail("me@example.com")).thenReturn(true);
+        when(passwordEncoder.encode("password123")).thenReturn("encoded-password");
+        when(userRepository.save(any(User.class))).thenThrow(new DataIntegrityViolationException("duplicate"));
 
         assertThatThrownBy(() -> userService.signup(request))
                 .isInstanceOf(DuplicateEmailException.class);
-
-        verify(passwordEncoder, never()).encode(any());
-        verify(userRepository, never()).save(any());
     }
 }
