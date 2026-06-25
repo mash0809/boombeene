@@ -24,6 +24,8 @@ kakao:
   local:
     base-url: https://dapi.kakao.com
     api-key: ${KAKAO_API_KEY}
+    connect-timeout: 2s
+    read-timeout: 5s
 
 server:
   servlet:
