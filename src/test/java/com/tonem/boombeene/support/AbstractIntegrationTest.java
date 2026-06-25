@@ -25,6 +25,7 @@ public abstract class AbstractIntegrationTest {
         registry.add("spring.datasource.url", MYSQL_CONTAINER::getJdbcUrl);
         registry.add("spring.datasource.username", MYSQL_CONTAINER::getUsername);
         registry.add("spring.datasource.password", MYSQL_CONTAINER::getPassword);
+        registry.add("spring.jpa.hibernate.ddl-auto", () -> "create");
 
         // Testcontainers가 Redis 포트를 무작위 호스트 포트에 매핑하므로 런타임 값을 주입한다.
         registry.add("spring.data.redis.host", REDIS_CONTAINER::getHost);
