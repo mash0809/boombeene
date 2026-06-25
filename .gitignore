@@ -75,3 +75,4 @@ node_modules
 ### AI Agent ###
 .claude
 .omc
+AGENTS.md

@@ -6,11 +6,24 @@ spring:
     url: jdbc:mysql://localhost:3306/boombeene?serverTimezone=Asia/Seoul
     username: admin
     password: topsecret
+  data:
+    redis:
+      host: localhost
+      port: 6379
   jpa:
     hibernate:
       ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+  session:
+    store-type: redis
+    timeout: 30m
+
+server:
+  servlet:
+    session:
+      cookie:
+        same-site: lax
 
 kind: Application
