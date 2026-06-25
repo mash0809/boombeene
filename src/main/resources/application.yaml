@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: boombeene
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/boombeene?serverTimezone=Asia/Seoul
+    username: admin
+    password: topsecret
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+kind: Application
