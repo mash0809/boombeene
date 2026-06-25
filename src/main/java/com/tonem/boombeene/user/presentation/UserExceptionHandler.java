@@ -1,5 +1,6 @@
 package com.tonem.boombeene.user.presentation;
 
+import com.tonem.boombeene.global.common.ErrorResponse;
 import com.tonem.boombeene.user.exception.DuplicateEmailException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -13,16 +14,19 @@ public class UserExceptionHandler {
 
     @ExceptionHandler(DuplicateEmailException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    void handleDuplicateEmail() {
+    ErrorResponse handleDuplicateEmail(DuplicateEmailException exception) {
+        return new ErrorResponse(exception.getMessage());
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    void handleBadCredentials() {
+    ErrorResponse handleBadCredentials(BadCredentialsException exception) {
+        return new ErrorResponse(exception.getMessage());
     }
 
     @ExceptionHandler(AuthenticationException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    void handleAuthenticationFailed() {
+    ErrorResponse handleAuthenticationFailed(AuthenticationException exception) {
+        return new ErrorResponse(exception.getMessage());
     }
 }
