@@ -1,4 +1,4 @@
-package com.tonem.boombeene.common.security;
+package com.tonem.boombeene.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

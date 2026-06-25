@@ -1,7 +1,7 @@
 package com.tonem.boombeene.user.security;
 
-import com.tonem.boombeene.common.exception.EntityNotFoundException;
-import com.tonem.boombeene.common.security.UserPrincipal;
+import com.tonem.boombeene.global.common.EntityNotFoundException;
+import com.tonem.boombeene.global.common.UserPrincipal;
 import com.tonem.boombeene.user.application.UserService;
 import com.tonem.boombeene.user.dto.UserAuthDto;
 import org.junit.jupiter.api.Test;

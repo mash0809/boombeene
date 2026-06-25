@@ -1,4 +1,4 @@
-package com.tonem.boombeene.user.domain.entity;
+package com.tonem.boombeene.user.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

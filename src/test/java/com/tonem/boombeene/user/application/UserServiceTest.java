@@ -1,9 +1,10 @@
 package com.tonem.boombeene.user.application;
 
-import com.tonem.boombeene.user.domain.entity.User;
+import com.tonem.boombeene.global.common.EntityNotFoundException;
+import com.tonem.boombeene.user.entity.User;
 import com.tonem.boombeene.user.dto.SignupRequest;
 import com.tonem.boombeene.user.exception.DuplicateEmailException;
-import com.tonem.boombeene.user.domain.repository.UserRepository;
+import com.tonem.boombeene.user.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -12,6 +13,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -54,5 +57,45 @@ class UserServiceTest {
 
         assertThatThrownBy(() -> userService.signup(request))
                 .isInstanceOf(DuplicateEmailException.class);
+    }
+
+    @Test
+    void getByIdReturnsUserDto() {
+        var user = User.create("me@example.com", "encoded-password", "nickname");
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        var userDto = userService.getById(1L);
+
+        assertThat(userDto.id()).isNull();
+        assertThat(userDto.email()).isEqualTo("me@example.com");
+        assertThat(userDto.nickname()).isEqualTo("nickname");
+    }
+
+    @Test
+    void getByIdThrowsWhenUserDoesNotExist() {
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.getById(1L))
+                .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    void getByEmailReturnsUserAuthDto() {
+        var user = User.create("me@example.com", "encoded-password", "nickname");
+        when(userRepository.findByEmail("me@example.com")).thenReturn(Optional.of(user));
+
+        var userAuthDto = userService.getByEmail("me@example.com");
+
+        assertThat(userAuthDto.id()).isNull();
+        assertThat(userAuthDto.email()).isEqualTo("me@example.com");
+        assertThat(userAuthDto.password()).isEqualTo("encoded-password");
+    }
+
+    @Test
+    void getByEmailThrowsWhenUserDoesNotExist() {
+        when(userRepository.findByEmail("missing@example.com")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.getByEmail("missing@example.com"))
+                .isInstanceOf(EntityNotFoundException.class);
     }
 }

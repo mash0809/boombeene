@@ -1,12 +1,12 @@
 package com.tonem.boombeene.user.application;
 
-import com.tonem.boombeene.common.exception.EntityNotFoundException;
-import com.tonem.boombeene.user.domain.entity.User;
+import com.tonem.boombeene.global.common.EntityNotFoundException;
+import com.tonem.boombeene.user.entity.User;
 import com.tonem.boombeene.user.dto.SignupRequest;
 import com.tonem.boombeene.user.dto.UserAuthDto;
 import com.tonem.boombeene.user.dto.UserDto;
 import com.tonem.boombeene.user.exception.DuplicateEmailException;
-import com.tonem.boombeene.user.domain.repository.UserRepository;
+import com.tonem.boombeene.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;

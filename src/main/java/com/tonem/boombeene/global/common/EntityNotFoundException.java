@@ -1,4 +1,4 @@
-package com.tonem.boombeene.common.exception;
+package com.tonem.boombeene.global.common;
 
 public class EntityNotFoundException extends RuntimeException {
 

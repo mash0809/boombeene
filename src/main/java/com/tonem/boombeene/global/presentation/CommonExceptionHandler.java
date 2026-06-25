@@ -1,6 +1,6 @@
-package com.tonem.boombeene.common.presentation;
+package com.tonem.boombeene.global.presentation;
 
-import com.tonem.boombeene.common.exception.EntityNotFoundException;
+import com.tonem.boombeene.global.common.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
