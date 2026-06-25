@@ -3,6 +3,7 @@ package com.tonem.boombeene.store.application;
 import com.tonem.boombeene.store.client.KakaoDocument;
 import com.tonem.boombeene.store.entity.Store;
 import com.tonem.boombeene.store.entity.StoreCategory;
+import com.tonem.boombeene.store.exception.KakaoApiException;
 import com.tonem.boombeene.store.repository.StoreRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +17,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -83,6 +85,15 @@ class StoreServiceTest {
         // 검색 결과가 여러 건이어도 조회/저장은 각각 한 번만 호출해 N+1을 피한다.
         verify(storeRepository, times(1)).findByPlaceIdIn(anyList());
         verify(storeRepository, times(1)).saveAll(anyList());
+    }
+
+    @Test
+    void upsertAllWrapsInvalidCoordinateAsKakaoApiException() {
+        var document = new KakaoDocument("12345", "테스트 식당", "", "37.498095");
+        when(storeRepository.findByPlaceIdIn(List.of("12345"))).thenReturn(List.of());
+
+        assertThatThrownBy(() -> storeService.upsertAll(List.of(document), StoreCategory.RESTAURANT))
+                .isInstanceOf(KakaoApiException.class);
     }
 
     @Test
