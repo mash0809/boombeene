@@ -1,5 +1,6 @@
-package com.tonem.boombeene.user;
+package com.tonem.boombeene.user.repository;
 
+import com.tonem.boombeene.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
