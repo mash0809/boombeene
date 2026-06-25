@@ -36,10 +36,11 @@ public class StoreService {
                 .collect(Collectors.toMap(Store::getPlaceId, Function.identity()));
 
         List<Store> newStores = new ArrayList<>();
-        List<Store> stores = new ArrayList<>();
+        List<Store> allStores = new ArrayList<>();
         for (KakaoDocument document : documents) {
             double latitude = Double.parseDouble(document.y());
             double longitude = Double.parseDouble(document.x());
+
             Store store = existingStoresByPlaceId.get(document.id());
             if (store != null) {
                 store.updateLocation(document.placeName(), latitude, longitude);
@@ -47,13 +48,14 @@ public class StoreService {
                 store = Store.create(document.id(), document.placeName(), latitude, longitude, request.category());
                 newStores.add(store);
             }
-            stores.add(store);
+
+            allStores.add(store);
         }
 
         if (!newStores.isEmpty()) {
             storeRepository.saveAll(newStores);
         }
 
-        return stores.stream().map(StoreDto::from).toList();
+        return allStores.stream().map(StoreDto::from).toList();
     }
 }

@@ -1,5 +1,8 @@
 package com.tonem.boombeene.store.entity;
 
+import lombok.Getter;
+
+@Getter
 public enum StoreCategory {
     RESTAURANT("FD6"),
     CAFE("CE7");
@@ -10,7 +13,4 @@ public enum StoreCategory {
         this.kakaoGroupCode = kakaoGroupCode;
     }
 
-    public String getKakaoGroupCode() {
-        return kakaoGroupCode;
-    }
 }

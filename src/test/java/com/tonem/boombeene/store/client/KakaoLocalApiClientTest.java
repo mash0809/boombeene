@@ -14,13 +14,17 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 
 class KakaoLocalApiClientTest {
 
+    private final static String KAKAO_LOCAL_BASE_URL = "https://dapi.kakao.com";
+    private final static String SEARCH_BY_CATEGORY_PATH = "/v2/local/search/category.json";
+
     @Test
     void searchByCategoryParsesDocuments() {
-        RestClient.Builder builder = RestClient.builder().baseUrl("https://dapi.kakao.com");
+        RestClient.Builder builder = RestClient.builder().baseUrl(KAKAO_LOCAL_BASE_URL);
         MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
         var client = new KakaoLocalApiClient(builder.build());
 
-        server.expect(requestTo("https://dapi.kakao.com/v2/local/search/category.json?category_group_code=FD6&x=127.027583&y=37.498095&radius=500"))
+        server.expect(
+                requestTo(KAKAO_LOCAL_BASE_URL + SEARCH_BY_CATEGORY_PATH + "?category_group_code=FD6&x=127.027583&y=37.498095&radius=500"))
                 .andRespond(withSuccess("""
                         {"documents": [{"id": "12345", "place_name": "테스트 식당", "x": "127.027583", "y": "37.498095"}]}
                         """, MediaType.APPLICATION_JSON));
@@ -34,11 +38,11 @@ class KakaoLocalApiClientTest {
 
     @Test
     void searchByCategoryWrapsServerErrorAsKakaoApiException() {
-        RestClient.Builder builder = RestClient.builder().baseUrl("https://dapi.kakao.com");
+        RestClient.Builder builder = RestClient.builder().baseUrl(KAKAO_LOCAL_BASE_URL);
         MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
         var client = new KakaoLocalApiClient(builder.build());
 
-        server.expect(requestTo("https://dapi.kakao.com/v2/local/search/category.json?category_group_code=FD6&x=127.027583&y=37.498095&radius=500"))
+        server.expect(requestTo(KAKAO_LOCAL_BASE_URL + SEARCH_BY_CATEGORY_PATH + "?category_group_code=FD6&x=127.027583&y=37.498095&radius=500"))
                 .andRespond(withServerError());
 
         assertThatThrownBy(() -> client.searchByCategory(37.498095, 127.027583, 500, "FD6"))
@@ -47,11 +51,11 @@ class KakaoLocalApiClientTest {
 
     @Test
     void searchByCategoryWrapsNullBodyAsKakaoApiException() {
-        RestClient.Builder builder = RestClient.builder().baseUrl("https://dapi.kakao.com");
+        RestClient.Builder builder = RestClient.builder().baseUrl(KAKAO_LOCAL_BASE_URL);
         MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
         var client = new KakaoLocalApiClient(builder.build());
 
-        server.expect(requestTo("https://dapi.kakao.com/v2/local/search/category.json?category_group_code=FD6&x=127.027583&y=37.498095&radius=500"))
+        server.expect(requestTo(KAKAO_LOCAL_BASE_URL + SEARCH_BY_CATEGORY_PATH + "?category_group_code=FD6&x=127.027583&y=37.498095&radius=500"))
                 .andRespond(withSuccess("", MediaType.APPLICATION_JSON));
 
         assertThatThrownBy(() -> client.searchByCategory(37.498095, 127.027583, 500, "FD6"))

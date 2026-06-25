@@ -10,11 +10,13 @@ import org.springframework.web.client.RestClient;
 @EnableConfigurationProperties(KakaoLocalProperties.class)
 public class KakaoClientConfig {
 
+    private final static String AUTH_HEADER_PREFIX = "KakaoAK ";
+
     @Bean
     RestClient kakaoRestClient(KakaoLocalProperties properties) {
         return RestClient.builder()
                 .baseUrl(properties.baseUrl())
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "KakaoAK " + properties.apiKey())
+                .defaultHeader(HttpHeaders.AUTHORIZATION, AUTH_HEADER_PREFIX + properties.apiKey())
                 .build();
     }
 }
