@@ -1,4 +1,4 @@
-package com.tonem.boombeene.user.dto;
+package com.tonem.boombeene.auth.dto;
 
 import jakarta.validation.constraints.NotBlank;
 

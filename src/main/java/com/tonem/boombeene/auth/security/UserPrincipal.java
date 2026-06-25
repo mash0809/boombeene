@@ -1,4 +1,4 @@
-package com.tonem.boombeene.user.security;
+package com.tonem.boombeene.auth.security;
 
 import lombok.Getter;
 import org.jspecify.annotations.NonNull;
