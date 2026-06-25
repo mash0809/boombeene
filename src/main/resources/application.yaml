@@ -20,6 +20,11 @@ spring:
     store-type: redis
     timeout: 30m
 
+kakao:
+  local:
+    base-url: https://dapi.kakao.com
+    api-key: ${KAKAO_API_KEY}
+
 server:
   servlet:
     session:
