@@ -5,8 +5,8 @@ import com.tonem.boombeene.store.dto.NearbySearchRequest;
 import com.tonem.boombeene.store.dto.StoreResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,8 +19,8 @@ public class StoreController {
 
     private final StoreService storeService;
 
-    @GetMapping("/nearby")
-    public List<StoreResponse> searchNearby(@Valid @ModelAttribute NearbySearchRequest request) {
+    @PostMapping("/nearby")
+    public List<StoreResponse> searchNearby(@Valid @RequestBody NearbySearchRequest request) {
         return storeService.searchNearby(request).stream()
                 .map(StoreResponse::from)
                 .toList();
