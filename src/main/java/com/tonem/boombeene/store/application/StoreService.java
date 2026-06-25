@@ -39,7 +39,7 @@ public class StoreService {
 
             Store store = existingStoresByPlaceId.get(document.id());
             if (store != null) {
-                store.updateLocation(document.placeName(), latitude, longitude);
+                store.update(document.placeName(), latitude, longitude, category);
             } else {
                 store = Store.create(document.id(), document.placeName(), latitude, longitude, category);
                 newStores.add(store);

@@ -50,9 +50,10 @@ public class Store {
         return new Store(placeId, name, latitude, longitude, category);
     }
 
-    public void updateLocation(String name, Double latitude, Double longitude) {
+    public void update(String name, Double latitude, Double longitude, StoreCategory category) {
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.category = category;
     }
 }

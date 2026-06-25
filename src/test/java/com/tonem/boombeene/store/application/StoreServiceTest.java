@@ -53,9 +53,10 @@ class StoreServiceTest {
         var existingStore = Store.create("12345", "옛 이름", 37.0, 127.0, StoreCategory.CAFE);
         when(storeRepository.findByPlaceIdIn(List.of("12345"))).thenReturn(List.of(existingStore));
 
-        var result = storeService.upsertAll(List.of(document), StoreCategory.CAFE);
+        var result = storeService.upsertAll(List.of(document), StoreCategory.RESTAURANT);
 
         assertThat(result.getFirst().name()).isEqualTo("새 이름");
+        assertThat(result.getFirst().category()).isEqualTo(StoreCategory.RESTAURANT);
         verify(storeRepository, never()).saveAll(anyList());
     }
 
