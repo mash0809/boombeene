@@ -17,7 +17,7 @@ class HaversineUtilsTest {
 
     @Test
     void isWithinRadiusUsesDefaultOneHundredMetersWhenAccuracyIsZero() {
-        boolean withinRadius = HaversineUtils.isWithinRadius(
+        boolean withinRadius = HaversineUtils.isWithinAllowedRadius(
                 37.5662952, 126.9779451,
                 37.5657037, 126.9768616,
                 0.0);
@@ -27,7 +27,7 @@ class HaversineUtilsTest {
 
     @Test
     void isWithinRadiusExpandsRadiusWhenAccuracyExceedsFiftyMeters() {
-        boolean withinRadius = HaversineUtils.isWithinRadius(
+        boolean withinRadius = HaversineUtils.isWithinAllowedRadius(
                 37.5662952, 126.9779451,
                 37.5657037, 126.9768616,
                 100.0);

@@ -15,5 +15,6 @@ public interface CrowdReportRepository extends JpaRepository<CrowdReport, Long> 
     @Query("SELECT c.level FROM CrowdReport c WHERE c.storeId = :storeId AND c.createdAt > :cutoff")
     List<CongestionLevel> findLevelsByStoreIdAndCreatedAtAfter(
             @Param("storeId") Long storeId,
-            @Param("cutoff") LocalDateTime cutoff);
+            @Param("cutoff") LocalDateTime cutoff
+    );
 }
