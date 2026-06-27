@@ -1,7 +1,6 @@
 package com.tonem.boombeene.store.presentation;
 
 import com.tonem.boombeene.global.common.ErrorResponse;
-import com.tonem.boombeene.store.api.StoreNotFoundException;
 import com.tonem.boombeene.store.exception.KakaoApiException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,12 +13,6 @@ public class StoreExceptionHandler {
     @ExceptionHandler(KakaoApiException.class)
     @ResponseStatus(HttpStatus.BAD_GATEWAY)
     ErrorResponse handleKakaoApiException(KakaoApiException exception) {
-        return new ErrorResponse(exception.getMessage());
-    }
-
-    @ExceptionHandler(StoreNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    ErrorResponse handleStoreNotFoundException(StoreNotFoundException exception) {
         return new ErrorResponse(exception.getMessage());
     }
 }
