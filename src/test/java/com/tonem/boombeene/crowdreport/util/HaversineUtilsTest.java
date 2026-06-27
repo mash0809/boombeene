@@ -1,5 +1,6 @@
 package com.tonem.boombeene.crowdreport.util;
 
+import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,7 +17,7 @@ class HaversineUtilsTest {
     }
 
     @Test
-    void isWithinRadiusUsesDefaultOneHundredMetersWhenAccuracyIsZero() {
+    void isWithinRadiusUsesDefaultFiftyMetersWhenAccuracyIsZero() {
         boolean withinRadius = HaversineUtils.isWithinAllowedRadius(
                 37.5662952, 126.9779451,
                 37.5657037, 126.9768616,
@@ -30,12 +31,12 @@ class HaversineUtilsTest {
         boolean withinRadius = HaversineUtils.isWithinAllowedRadius(
                 37.5662952, 126.9779451,
                 37.5657037, 126.9768616,
-                100.0);
+                120.0);
 
         assertThat(withinRadius).isTrue();
     }
 
-    private static org.assertj.core.data.Offset<Double> withinOneMeter() {
-        return org.assertj.core.data.Offset.offset(1.0);
+    private static Offset<Double> withinOneMeter() {
+        return Offset.offset(1.0);
     }
 }

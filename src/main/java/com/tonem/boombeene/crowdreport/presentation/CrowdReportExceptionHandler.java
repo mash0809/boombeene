@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class CrowdReportExceptionHandler {
 
     @ExceptionHandler(LocationTooFarException.class)
-    @ResponseStatus(HttpStatus.UNPROCESSABLE_CONTENT)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     ErrorResponse handleLocationTooFarException(LocationTooFarException exception) {
         return new ErrorResponse(exception.getMessage());
     }
 
     @ExceptionHandler(CooldownActiveException.class)
-    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     ErrorResponse handleCooldownActiveException(CooldownActiveException exception) {
         return new ErrorResponse(exception.getMessage());
     }
