@@ -47,6 +47,7 @@ class CrowdReportServiceTest {
     @Test
     void reportSavesCrowdReportAndPublishesCompletedEvent() {
         var request = new CrowdReportRequest(1L, 37.5662952, 126.9779451, 0.0, CongestionLevel.NORMAL);
+
         when(storeFacade.getById(1L)).thenReturn(new StoreInfo(1L, 37.5662952, 126.9779451));
         when(crowdReportRepository.existsByUserIdAndStoreIdAndCreatedAtAfter(eq(10L), eq(1L), any(LocalDateTime.class)))
                 .thenReturn(false);
@@ -105,12 +106,14 @@ class CrowdReportServiceTest {
                         CongestionLevel.CROWDED,
                         CongestionLevel.NORMAL,
                         CongestionLevel.CROWDED,
-                        CongestionLevel.CROWDED
+                        CongestionLevel.NORMAL,
+                        CongestionLevel.COMFORTABLE
                 ));
 
         var result = crowdReportService.getCongestion(1L);
 
         assertThat(result.hasData()).isTrue();
+        // 가장 개수가 많으면서 level 의 priority 가 높은 순으로 정렬하여 추출
         assertThat(result.level()).isEqualTo(CongestionLevel.CROWDED);
     }
 
@@ -123,19 +126,5 @@ class CrowdReportServiceTest {
 
         assertThat(result.hasData()).isFalse();
         assertThat(result.level()).isNull();
-    }
-
-    @Test
-    void getCongestionChoosesMoreCrowdedLevelWhenTied() {
-        when(crowdReportRepository.findLevelsByStoreIdAndCreatedAtAfter(eq(1L), any(LocalDateTime.class)))
-                .thenReturn(List.of(
-                        CongestionLevel.COMFORTABLE,
-                        CongestionLevel.NORMAL
-                ));
-
-        var result = crowdReportService.getCongestion(1L);
-
-        assertThat(result.hasData()).isTrue();
-        assertThat(result.level()).isEqualTo(CongestionLevel.NORMAL);
     }
 }
