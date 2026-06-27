@@ -16,9 +16,17 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
   session:
     store-type: redis
     timeout: 30m
+
+kakao:
+  local:
+    base-url: https://dapi.kakao.com
+    api-key: ${KAKAO_API_KEY}
+    connect-timeout: 2s
+    read-timeout: 5s
 
 server:
   servlet:
