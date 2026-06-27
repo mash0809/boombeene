@@ -27,6 +27,7 @@ public class PointService {
 
         UserPoint userPoint = userPointRepository.findByUserId(event.userId())
                 .orElseGet(() -> UserPoint.create(event.userId()));
+        // 동시성 이슈 발생 가능, 개선 필요
         userPoint.addBalance(POINT_PER_REPORT);
         userPointRepository.save(userPoint);
 

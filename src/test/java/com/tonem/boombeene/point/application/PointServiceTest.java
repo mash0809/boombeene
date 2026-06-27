@@ -36,7 +36,8 @@ class PointServiceTest {
     @Test
     void onEarnsPointForNewUser() {
         var event = new CrowdReportCompleted(100L, 10L, 1L);
-        when(pointLedgerRepository.existsByIdempotencyKey("EARN_10_100")).thenReturn(false);
+        String idempotencyKey = PointLedger.earnKey(10L, 100L);
+        when(pointLedgerRepository.existsByIdempotencyKey(idempotencyKey)).thenReturn(false);
         when(userPointRepository.findByUserId(10L)).thenReturn(Optional.empty());
 
         pointService.on(event);
@@ -54,15 +55,16 @@ class PointServiceTest {
         assertThat(ledgerCaptor.getValue().getAmount()).isEqualTo(10);
         assertThat(ledgerCaptor.getValue().getReportId()).isEqualTo(100L);
         assertThat(ledgerCaptor.getValue().getDescription()).isEqualTo("혼잡도 제보 적립");
-        assertThat(ledgerCaptor.getValue().getIdempotencyKey()).isEqualTo("EARN_10_100");
+        assertThat(ledgerCaptor.getValue().getIdempotencyKey()).isEqualTo(idempotencyKey);
     }
 
     @Test
     void onAddsPointToExistingUser() {
         var event = new CrowdReportCompleted(100L, 10L, 1L);
         var userPoint = UserPoint.create(10L);
+        String idempotencyKey = PointLedger.earnKey(10L, 100L);
         userPoint.addBalance(30);
-        when(pointLedgerRepository.existsByIdempotencyKey("EARN_10_100")).thenReturn(false);
+        when(pointLedgerRepository.existsByIdempotencyKey(idempotencyKey)).thenReturn(false);
         when(userPointRepository.findByUserId(10L)).thenReturn(Optional.of(userPoint));
 
         pointService.on(event);
@@ -78,7 +80,8 @@ class PointServiceTest {
     @Test
     void onSkipsWhenIdempotencyKeyAlreadyExists() {
         var event = new CrowdReportCompleted(100L, 10L, 1L);
-        when(pointLedgerRepository.existsByIdempotencyKey("EARN_10_100")).thenReturn(true);
+        String idempotencyKey = PointLedger.earnKey(10L, 100L);
+        when(pointLedgerRepository.existsByIdempotencyKey(idempotencyKey)).thenReturn(true);
 
         pointService.on(event);
 

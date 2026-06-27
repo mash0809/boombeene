@@ -43,8 +43,14 @@ public class PointLedger {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    private PointLedger(Long userId, PointType type, int amount,
-                        Long reportId, String description, String idempotencyKey) {
+    private PointLedger(
+            Long userId,
+            PointType type,
+            int amount,
+            Long reportId,
+            String description,
+            String idempotencyKey
+    ) {
         this.userId = userId;
         this.type = type;
         this.amount = amount;
@@ -54,6 +60,7 @@ public class PointLedger {
         this.createdAt = LocalDateTime.now();
     }
 
+    // EARN 타입 ledger 에 들어갈 멱등성 키 형식
     public static String earnKey(Long userId, Long reportId) {
         return "EARN_" + userId + "_" + reportId;
     }
