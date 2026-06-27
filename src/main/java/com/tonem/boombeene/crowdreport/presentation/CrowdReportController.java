@@ -28,7 +28,7 @@ public class CrowdReportController {
     public CrowdReportResponse report(
             @AuthenticationPrincipal(expression = "userId") Long userId,
             @Valid @RequestBody CrowdReportRequest request) {
-        return crowdReportService.report(userId, request);
+        return CrowdReportResponse.from(crowdReportService.report(userId, request));
     }
 
     @GetMapping("/stores/{storeId}/congestion")

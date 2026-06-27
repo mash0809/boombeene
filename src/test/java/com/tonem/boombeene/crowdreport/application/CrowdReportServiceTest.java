@@ -1,5 +1,6 @@
 package com.tonem.boombeene.crowdreport.application;
 
+import com.tonem.boombeene.crowdreport.dto.CrowdReportDto;
 import com.tonem.boombeene.crowdreport.dto.CrowdReportRequest;
 import com.tonem.boombeene.crowdreport.entity.CongestionLevel;
 import com.tonem.boombeene.crowdreport.entity.CrowdReport;
@@ -55,7 +56,7 @@ class CrowdReportServiceTest {
             return report;
         });
 
-        var response = crowdReportService.report(10L, request);
+        CrowdReportDto response = crowdReportService.report(10L, request);
 
         assertThat(response.reportId()).isEqualTo(99L);
 

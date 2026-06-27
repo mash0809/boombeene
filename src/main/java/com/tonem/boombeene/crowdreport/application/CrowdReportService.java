@@ -1,8 +1,8 @@
 package com.tonem.boombeene.crowdreport.application;
 
 import com.tonem.boombeene.crowdreport.dto.CongestionResult;
+import com.tonem.boombeene.crowdreport.dto.CrowdReportDto;
 import com.tonem.boombeene.crowdreport.dto.CrowdReportRequest;
-import com.tonem.boombeene.crowdreport.dto.CrowdReportResponse;
 import com.tonem.boombeene.crowdreport.entity.CongestionLevel;
 import com.tonem.boombeene.crowdreport.entity.CrowdReport;
 import com.tonem.boombeene.crowdreport.event.CrowdReportCompleted;
@@ -29,7 +29,7 @@ public class CrowdReportService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    public CrowdReportResponse report(Long userId, CrowdReportRequest request) {
+    public CrowdReportDto report(Long userId, CrowdReportRequest request) {
         StoreInfo store = storeFacade.getById(request.storeId());
 
         if (!HaversineUtils.isWithinRadius(
@@ -50,7 +50,7 @@ public class CrowdReportService {
 
         eventPublisher.publishEvent(new CrowdReportCompleted(saved.getId(), userId, request.storeId()));
 
-        return new CrowdReportResponse(saved.getId());
+        return new CrowdReportDto(saved.getId());
     }
 
     @Transactional(readOnly = true)
