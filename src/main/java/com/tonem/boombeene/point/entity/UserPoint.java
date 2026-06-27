@@ -2,6 +2,8 @@ package com.tonem.boombeene.point.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
@@ -16,6 +18,10 @@ import lombok.NoArgsConstructor;
 public class UserPoint {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true)
     private Long userId;
 
     @Column(nullable = false)
@@ -24,14 +30,14 @@ public class UserPoint {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    private UserPoint(Long userId, int initialAmount) {
+    private UserPoint(Long userId) {
         this.userId = userId;
-        this.balance = initialAmount;
+        this.balance = 0;
         this.updatedAt = LocalDateTime.now();
     }
 
-    public static UserPoint create(Long userId, int initialAmount) {
-        return new UserPoint(userId, initialAmount);
+    public static UserPoint create(Long userId) {
+        return new UserPoint(userId);
     }
 
     public void addBalance(int amount) {

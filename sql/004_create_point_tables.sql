@@ -1,8 +1,10 @@
 CREATE TABLE user_points (
+    id         BIGINT      NOT NULL AUTO_INCREMENT,
     user_id    BIGINT      NOT NULL,
     balance    INT         NOT NULL DEFAULT 0,
     updated_at DATETIME(6) NOT NULL,
-    PRIMARY KEY (user_id)
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_user_points_user_id (user_id)
 );
 
 CREATE TABLE point_ledger (

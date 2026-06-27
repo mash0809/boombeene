@@ -43,6 +43,7 @@ class PointServiceTest {
 
         var userPointCaptor = ArgumentCaptor.forClass(UserPoint.class);
         verify(userPointRepository).save(userPointCaptor.capture());
+        assertThat(userPointCaptor.getValue().getId()).isNull();
         assertThat(userPointCaptor.getValue().getUserId()).isEqualTo(10L);
         assertThat(userPointCaptor.getValue().getBalance()).isEqualTo(10);
 
@@ -59,7 +60,8 @@ class PointServiceTest {
     @Test
     void onAddsPointToExistingUser() {
         var event = new CrowdReportCompleted(100L, 10L, 1L);
-        var userPoint = UserPoint.create(10L, 30);
+        var userPoint = UserPoint.create(10L);
+        userPoint.addBalance(30);
         when(pointLedgerRepository.existsByIdempotencyKey("EARN_10_100")).thenReturn(false);
         when(userPointRepository.findByUserId(10L)).thenReturn(Optional.of(userPoint));
 
