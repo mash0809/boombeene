@@ -101,6 +101,7 @@ class CrowdReportServiceTest {
 
     @Test
     void getCongestionReturnsMajorityLevel() {
+        when(storeFacade.getById(1L)).thenReturn(new StoreInfo(1L, 37.5662952, 126.9779451));
         when(crowdReportRepository.findLevelsByStoreIdAndCreatedAtAfter(eq(1L), any(LocalDateTime.class)))
                 .thenReturn(List.of(
                         CongestionLevel.CROWDED,
@@ -110,21 +111,24 @@ class CrowdReportServiceTest {
                         CongestionLevel.COMFORTABLE
                 ));
 
-        var result = crowdReportService.getCongestion(1L);
+        var result = crowdReportService.getCongestion(1L, 37.5662952, 126.9779451);
 
-        assertThat(result.hasData()).isTrue();
+        assertThat(result.count()).isEqualTo(5);
         // 가장 개수가 많으면서 level 의 priority 가 높은 순으로 정렬하여 추출
         assertThat(result.level()).isEqualTo(CongestionLevel.CROWDED);
+        assertThat(result.distanceMeters()).isZero();
     }
 
     @Test
     void getCongestionReturnsNoDataWhenRecentReportsDoNotExist() {
+        when(storeFacade.getById(1L)).thenReturn(new StoreInfo(1L, 37.5662952, 126.9779451));
         when(crowdReportRepository.findLevelsByStoreIdAndCreatedAtAfter(eq(1L), any(LocalDateTime.class)))
                 .thenReturn(List.of());
 
-        var result = crowdReportService.getCongestion(1L);
+        var result = crowdReportService.getCongestion(1L, 37.5662952, 126.9779451);
 
-        assertThat(result.hasData()).isFalse();
+        assertThat(result.count()).isZero();
         assertThat(result.level()).isNull();
+        assertThat(result.distanceMeters()).isZero();
     }
 }

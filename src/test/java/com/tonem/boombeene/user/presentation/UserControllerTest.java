@@ -22,12 +22,13 @@ class UserControllerTest {
 
     @Test
     void meReturnsAuthenticatedUser() {
-        when(userService.getById(1L)).thenReturn(new UserDto(1L, "me@example.com", "nickname"));
+        when(userService.getById(1L)).thenReturn(new UserDto(1L, "me@example.com", "nickname", 20));
 
         var response = userController.me(1L);
 
         assertThat(response.id()).isEqualTo(1L);
         assertThat(response.email()).isEqualTo("me@example.com");
         assertThat(response.nickname()).isEqualTo("nickname");
+        assertThat(response.point()).isEqualTo(20);
     }
 }

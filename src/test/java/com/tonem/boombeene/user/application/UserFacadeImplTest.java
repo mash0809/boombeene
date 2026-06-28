@@ -62,7 +62,7 @@ class UserFacadeImplTest {
 
     @Test
     void getUserByIdDelegatesToUserService() {
-        var user = new UserDto(1L, "me@example.com", "nickname");
+        var user = new UserDto(1L, "me@example.com", "nickname", 0);
         when(userService.getById(1L)).thenReturn(user);
 
         var result = userFacade.getUserById(1L);
