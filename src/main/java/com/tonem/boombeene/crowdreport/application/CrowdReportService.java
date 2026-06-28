@@ -65,16 +65,24 @@ public class CrowdReportService {
     }
 
     @Transactional(readOnly = true)
-    public CongestionResult getCongestion(Long storeId) {
+    public CongestionResult getCongestion(Long storeId, double latitude, double longitude) {
+        StoreInfo store = storeFacade.getById(storeId);
+        double distanceMeters = HaversineUtils.distanceMeters(
+                latitude,
+                longitude,
+                store.latitude(),
+                store.longitude()
+        );
+
         LocalDateTime cutoff = LocalDateTime.now().minusMinutes(COOLDOWN_MINUTES);
         // 최근 30분동안 달린 혼잡도 리포트 조회
         var levels = crowdReportRepository.findLevelsByStoreIdAndCreatedAtAfter(storeId, cutoff);
 
         if (levels.isEmpty()) {
-            return CongestionResult.none();
+            return CongestionResult.none(distanceMeters);
         }
 
-        return CongestionResult.of(getMostSelectedLevel(levels));
+        return CongestionResult.of(getMostSelectedLevel(levels), levels.size(), distanceMeters);
     }
 
     // 선택된 개수 -> level 의 priority 순으로 비교하여 level 추출

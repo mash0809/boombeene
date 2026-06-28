@@ -1,6 +1,7 @@
 package com.tonem.boombeene.crowdreport.presentation;
 
 import com.tonem.boombeene.crowdreport.application.CrowdReportService;
+import com.tonem.boombeene.crowdreport.dto.CongestionResult;
 import com.tonem.boombeene.crowdreport.dto.CrowdReportDto;
 import com.tonem.boombeene.crowdreport.dto.CrowdReportRequest;
 import com.tonem.boombeene.crowdreport.entity.CongestionLevel;
@@ -30,5 +31,18 @@ class CrowdReportControllerTest {
         var response = crowdReportController.report(10L, request);
 
         assertThat(response.reportId()).isEqualTo(99L);
+    }
+
+    @Test
+    void getCongestionCreatesResponseWithReportCount() {
+        when(crowdReportService.getCongestion(1L, 37.5662952, 126.9779451))
+                .thenReturn(CongestionResult.of(CongestionLevel.CROWDED, 3, 10.5));
+
+        var response = crowdReportController.getCongestion(1L, 37.5662952, 126.9779451);
+
+        assertThat(response.storeId()).isEqualTo(1L);
+        assertThat(response.level()).isEqualTo(CongestionLevel.CROWDED);
+        assertThat(response.count()).isEqualTo(3);
+        assertThat(response.distanceMeters()).isEqualTo(10.5);
     }
 }
