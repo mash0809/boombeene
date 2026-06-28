@@ -10,10 +10,7 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
       - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf:ro
-    deploy:
-      resources:
-        limits:
-          memory: 400m
+    mem_limit: 400m
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -26,10 +23,12 @@ services:
     container_name: boombeene-redis
     volumes:
       - redis-data:/data
-    deploy:
-      resources:
-        limits:
-          memory: 100m
+    mem_limit: 100m
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
 
   app:
@@ -47,11 +46,8 @@ services:
       mysql:
         condition: service_healthy
       redis:
-        condition: service_started
-    deploy:
-      resources:
-        limits:
-          memory: 512m
+        condition: service_healthy
+    mem_limit: 512m
     restart: unless-stopped
 
 volumes:
