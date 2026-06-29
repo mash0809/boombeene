@@ -28,6 +28,9 @@ kakao:
     connect-timeout: 2s
     read-timeout: 5s
 
+cors:
+  allowed-origins: http://localhost:5173
+
 server:
   servlet:
     session:
