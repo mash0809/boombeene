@@ -28,6 +28,9 @@ kakao:
     connect-timeout: 2s
     read-timeout: 5s
 
+cors:
+  allowed-origins: https://boombeene.tomash.me
+
 server:
   servlet:
     session:
