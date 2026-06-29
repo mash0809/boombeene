@@ -3,13 +3,13 @@ spring:
     name: boombeene
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${DB_URL:jdbc:mysql://mysql:3306/boombeene?serverTimezone=Asia/Seoul}
-    username: ${DB_USERNAME:admin}
-    password: ${DB_PASSWORD}
+    url: jdbc:mysql://localhost:3306/boombeene?serverTimezone=Asia/Seoul
+    username: admin
+    password: topsecret
   data:
     redis:
-      host: ${REDIS_HOST:redis}
-      port: ${REDIS_PORT:6379}
+      host: localhost
+      port: 6379
   jpa:
     hibernate:
       ddl-auto: validate
@@ -33,3 +33,5 @@ server:
     session:
       cookie:
         same-site: lax
+
+kind: Application

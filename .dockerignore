@@ -1,0 +1,15 @@
+.git
+.github
+.gradle
+.idea
+.omc
+.claude
+build
+out
+target
+*.iml
+*.iws
+*.ipr
+.DS_Store
+.env
+*.log

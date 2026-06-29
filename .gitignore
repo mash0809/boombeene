@@ -37,6 +37,7 @@ out/
 .vscode/
 
 ### Spring Boot ###
+.env
 *#
 *.jar
 *.sw?
