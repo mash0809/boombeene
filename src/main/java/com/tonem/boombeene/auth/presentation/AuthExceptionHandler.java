@@ -1,6 +1,6 @@
 package com.tonem.boombeene.auth.presentation;
 
-import com.tonem.boombeene.global.common.ErrorResponse;
+import com.tonem.boombeene.common.exception.ErrorResponse;
 import com.tonem.boombeene.user.api.DuplicateUserEmailException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;

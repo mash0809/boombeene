@@ -1,6 +1,7 @@
-package com.tonem.boombeene.global.presentation;
+package com.tonem.boombeene.common.presentation;
 
-import com.tonem.boombeene.global.common.EntityNotFoundException;
+import com.tonem.boombeene.common.exception.CommonExceptionHandler;
+import com.tonem.boombeene.common.exception.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.validation.BeanPropertyBindingResult;

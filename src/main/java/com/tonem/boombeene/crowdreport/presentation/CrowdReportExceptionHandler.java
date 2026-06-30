@@ -2,7 +2,7 @@ package com.tonem.boombeene.crowdreport.presentation;
 
 import com.tonem.boombeene.crowdreport.exception.CooldownActiveException;
 import com.tonem.boombeene.crowdreport.exception.LocationTooFarException;
-import com.tonem.boombeene.global.common.ErrorResponse;
+import com.tonem.boombeene.common.exception.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;

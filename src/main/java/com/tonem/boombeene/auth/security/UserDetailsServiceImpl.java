@@ -1,6 +1,6 @@
 package com.tonem.boombeene.auth.security;
 
-import com.tonem.boombeene.global.common.EntityNotFoundException;
+import com.tonem.boombeene.common.exception.EntityNotFoundException;
 import com.tonem.boombeene.user.api.UserFacade;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;

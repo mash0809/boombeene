@@ -1,6 +1,6 @@
 package com.tonem.boombeene.user.application;
 
-import com.tonem.boombeene.global.common.EntityNotFoundException;
+import com.tonem.boombeene.common.exception.EntityNotFoundException;
 import com.tonem.boombeene.point.api.PointFacade;
 import com.tonem.boombeene.point.api.PointInfo;
 import com.tonem.boombeene.user.entity.User;

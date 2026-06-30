@@ -1,7 +1,5 @@
-package com.tonem.boombeene.global.presentation;
+package com.tonem.boombeene.common.exception;
 
-import com.tonem.boombeene.global.common.ErrorResponse;
-import com.tonem.boombeene.global.common.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,13 +11,13 @@ public class CommonExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    ErrorResponse handleEntityNotFound(EntityNotFoundException exception) {
+    public ErrorResponse handleEntityNotFound(EntityNotFoundException exception) {
         return new ErrorResponse(exception.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    ErrorResponse handleMethodArgumentNotValid(MethodArgumentNotValidException exception) {
+    public ErrorResponse handleMethodArgumentNotValid(MethodArgumentNotValidException exception) {
         return new ErrorResponse("Invalid request");
     }
 }

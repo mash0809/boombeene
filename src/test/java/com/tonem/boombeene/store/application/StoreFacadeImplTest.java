@@ -1,6 +1,6 @@
 package com.tonem.boombeene.store.application;
 
-import com.tonem.boombeene.global.common.EntityNotFoundException;
+import com.tonem.boombeene.common.exception.EntityNotFoundException;
 import com.tonem.boombeene.store.repository.StoreRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

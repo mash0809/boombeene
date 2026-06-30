@@ -1,6 +1,6 @@
 package com.tonem.boombeene.store.presentation;
 
-import com.tonem.boombeene.global.common.ErrorResponse;
+import com.tonem.boombeene.common.exception.ErrorResponse;
 import com.tonem.boombeene.store.exception.KakaoApiException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;

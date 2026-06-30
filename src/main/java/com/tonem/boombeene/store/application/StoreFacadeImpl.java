@@ -1,6 +1,6 @@
 package com.tonem.boombeene.store.application;
 
-import com.tonem.boombeene.global.common.EntityNotFoundException;
+import com.tonem.boombeene.common.exception.EntityNotFoundException;
 import com.tonem.boombeene.store.api.StoreFacade;
 import com.tonem.boombeene.store.api.StoreInfo;
 import com.tonem.boombeene.store.repository.StoreRepository;

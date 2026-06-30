@@ -1,4 +1,4 @@
-package com.tonem.boombeene.global.common;
+package com.tonem.boombeene.common.exception;
 
 public record ErrorResponse(String message) {
 }

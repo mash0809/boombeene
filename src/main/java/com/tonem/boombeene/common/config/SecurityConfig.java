@@ -1,4 +1,4 @@
-package com.tonem.boombeene.global.config;
+package com.tonem.boombeene.common.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
