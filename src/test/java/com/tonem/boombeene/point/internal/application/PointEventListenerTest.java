@@ -22,7 +22,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class PointServiceTest {
+class PointEventListenerTest {
 
     @Mock
     private UserPointRepository userPointRepository;
@@ -31,7 +31,7 @@ class PointServiceTest {
     private PointLedgerRepository pointLedgerRepository;
 
     @InjectMocks
-    private PointService pointService;
+    private PointEventListener pointEventListener;
 
     @Test
     void onEarnsPointForNewUser() {
@@ -40,7 +40,7 @@ class PointServiceTest {
         when(pointLedgerRepository.existsByIdempotencyKey(idempotencyKey)).thenReturn(false);
         when(userPointRepository.findByUserId(10L)).thenReturn(Optional.empty());
 
-        pointService.on(event);
+        pointEventListener.onCrowdReport(event);
 
         var userPointCaptor = ArgumentCaptor.forClass(UserPoint.class);
         verify(userPointRepository).save(userPointCaptor.capture());
@@ -67,7 +67,7 @@ class PointServiceTest {
         when(pointLedgerRepository.existsByIdempotencyKey(idempotencyKey)).thenReturn(false);
         when(userPointRepository.findByUserId(10L)).thenReturn(Optional.of(userPoint));
 
-        pointService.on(event);
+        pointEventListener.onCrowdReport(event);
 
         var userPointCaptor = ArgumentCaptor.forClass(UserPoint.class);
         verify(userPointRepository).save(userPointCaptor.capture());
@@ -83,7 +83,7 @@ class PointServiceTest {
         String idempotencyKey = PointLedger.earnKey(10L, 100L);
         when(pointLedgerRepository.existsByIdempotencyKey(idempotencyKey)).thenReturn(true);
 
-        pointService.on(event);
+        pointEventListener.onCrowdReport(event);
 
         verifyNoInteractions(userPointRepository);
         verify(pointLedgerRepository, never()).save(any());
