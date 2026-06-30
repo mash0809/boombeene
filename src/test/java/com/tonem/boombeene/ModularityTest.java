@@ -7,6 +7,12 @@ class ModularityTest {
 
     @Test
     void verifiesModuleBoundaries() {
-        ApplicationModules.of(BoombeeneApplication.class).verify();
+        var modules = ApplicationModules.of(BoombeeneApplication.class);
+
+        // 모듈 정보 출력
+        modules.forEach(System.out::println);
+
+        // 모듈 의존성 verify
+        modules.verify();
     }
 }
