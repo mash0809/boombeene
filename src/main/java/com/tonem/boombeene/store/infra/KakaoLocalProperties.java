@@ -1,4 +1,4 @@
-package com.tonem.boombeene.store.client;
+package com.tonem.boombeene.store.infra;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

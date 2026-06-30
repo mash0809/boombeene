@@ -1,6 +1,6 @@
 package com.tonem.boombeene.store.application;
 
-import com.tonem.boombeene.store.client.KakaoDocument;
+import com.tonem.boombeene.store.dto.KakaoDocument;
 import com.tonem.boombeene.store.dto.StoreDto;
 import com.tonem.boombeene.store.entity.Store;
 import com.tonem.boombeene.store.entity.StoreCategory;
