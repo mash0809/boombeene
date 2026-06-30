@@ -20,6 +20,8 @@ spring:
   session:
     store-type: redis
     timeout: 30m
+  modulith:
+    detection-strategy: explicitly-annotated # @ApplicationModule을 명시적으로 선언해야 모듈로 인식
 
 kakao:
   local:

@@ -1,2 +1,4 @@
-@org.springframework.modulith.ApplicationModule(allowedDependencies = {"global::common"})
+@ApplicationModule
 package com.tonem.boombeene.store;
+
+import org.springframework.modulith.ApplicationModule;

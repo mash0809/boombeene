@@ -1,4 +1,4 @@
-@ApplicationModule(allowedDependencies = {"global::common", "point::api"})
+@ApplicationModule
 package com.tonem.boombeene.user;
 
 import org.springframework.modulith.ApplicationModule;
