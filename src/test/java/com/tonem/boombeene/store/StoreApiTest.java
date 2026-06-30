@@ -1,7 +1,7 @@
 package com.tonem.boombeene.store;
 
 import com.tonem.boombeene.common.exception.EntityNotFoundException;
-import com.tonem.boombeene.store.repository.StoreRepository;
+import com.tonem.boombeene.store.internal.repository.StoreRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

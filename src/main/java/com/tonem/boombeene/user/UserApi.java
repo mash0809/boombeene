@@ -1,6 +1,6 @@
 package com.tonem.boombeene.user;
 
-import com.tonem.boombeene.user.application.UserService;
+import com.tonem.boombeene.user.internal.application.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

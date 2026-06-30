@@ -1,7 +1,7 @@
 package com.tonem.boombeene.user;
 
-import com.tonem.boombeene.user.application.UserService;
-import com.tonem.boombeene.user.dto.UserAuthDto;
+import com.tonem.boombeene.user.internal.application.UserService;
+import com.tonem.boombeene.user.internal.dto.UserAuthDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

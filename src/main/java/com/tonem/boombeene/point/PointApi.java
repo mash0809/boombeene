@@ -1,7 +1,7 @@
 package com.tonem.boombeene.point;
 
-import com.tonem.boombeene.point.entity.UserPoint;
-import com.tonem.boombeene.point.repository.UserPointRepository;
+import com.tonem.boombeene.point.internal.entity.UserPoint;
+import com.tonem.boombeene.point.internal.repository.UserPointRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
