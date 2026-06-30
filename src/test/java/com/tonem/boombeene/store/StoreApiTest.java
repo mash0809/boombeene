@@ -1,4 +1,4 @@
-package com.tonem.boombeene.store.application;
+package com.tonem.boombeene.store;
 
 import com.tonem.boombeene.common.exception.EntityNotFoundException;
 import com.tonem.boombeene.store.repository.StoreRepository;
@@ -14,19 +14,19 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class StoreFacadeImplTest {
+class StoreApiTest {
 
     @Mock
     private StoreRepository storeRepository;
 
     @InjectMocks
-    private StoreFacadeImpl storeFacade;
+    private StoreApi storeApi;
 
     @Test
     void getByIdThrowsEntityNotFoundExceptionWhenStoreDoesNotExist() {
         when(storeRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> storeFacade.getById(1L))
+        assertThatThrownBy(() -> storeApi.getById(1L))
                 .isInstanceOf(EntityNotFoundException.class);
     }
 }

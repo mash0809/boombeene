@@ -1,4 +1,4 @@
-package com.tonem.boombeene.user.exception;
+package com.tonem.boombeene.user;
 
 public class DuplicateEmailException extends RuntimeException {
 

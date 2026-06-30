@@ -8,8 +8,8 @@ import com.tonem.boombeene.crowdreport.event.CrowdReportCompleted;
 import com.tonem.boombeene.crowdreport.exception.CooldownActiveException;
 import com.tonem.boombeene.crowdreport.exception.LocationTooFarException;
 import com.tonem.boombeene.crowdreport.repository.CrowdReportRepository;
-import com.tonem.boombeene.store.api.StoreFacade;
-import com.tonem.boombeene.store.api.StoreInfo;
+import com.tonem.boombeene.store.StoreApi;
+import com.tonem.boombeene.store.StoreInfo;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
 class CrowdReportServiceTest {
 
     @Mock
-    private StoreFacade storeFacade;
+    private StoreApi storeApi;
 
     @Mock
     private CrowdReportRepository crowdReportRepository;
@@ -48,7 +48,7 @@ class CrowdReportServiceTest {
     void reportSavesCrowdReportAndPublishesCompletedEvent() {
         var request = new CrowdReportRequest(1L, 37.5662952, 126.9779451, 0.0, CongestionLevel.NORMAL);
 
-        when(storeFacade.getById(1L)).thenReturn(new StoreInfo(1L, 37.5662952, 126.9779451));
+        when(storeApi.getById(1L)).thenReturn(new StoreInfo(1L, 37.5662952, 126.9779451));
         when(crowdReportRepository.existsByUserIdAndStoreIdAndCreatedAtAfter(eq(10L), eq(1L), any(LocalDateTime.class)))
                 .thenReturn(false);
         when(crowdReportRepository.save(any(CrowdReport.class))).thenAnswer(invocation -> {
@@ -76,7 +76,7 @@ class CrowdReportServiceTest {
     @Test
     void reportThrowsWhenUserLocationIsTooFar() {
         var request = new CrowdReportRequest(1L, 37.5662952, 126.9779451, 0.0, CongestionLevel.NORMAL);
-        when(storeFacade.getById(1L)).thenReturn(new StoreInfo(1L, 37.5657037, 126.9768616));
+        when(storeApi.getById(1L)).thenReturn(new StoreInfo(1L, 37.5657037, 126.9768616));
 
         assertThatThrownBy(() -> crowdReportService.report(10L, request))
                 .isInstanceOf(LocationTooFarException.class);
@@ -88,7 +88,7 @@ class CrowdReportServiceTest {
     @Test
     void reportThrowsWhenCooldownIsActive() {
         var request = new CrowdReportRequest(1L, 37.5662952, 126.9779451, 0.0, CongestionLevel.NORMAL);
-        when(storeFacade.getById(1L)).thenReturn(new StoreInfo(1L, 37.5662952, 126.9779451));
+        when(storeApi.getById(1L)).thenReturn(new StoreInfo(1L, 37.5662952, 126.9779451));
         when(crowdReportRepository.existsByUserIdAndStoreIdAndCreatedAtAfter(eq(10L), eq(1L), any(LocalDateTime.class)))
                 .thenReturn(true);
 
@@ -101,7 +101,7 @@ class CrowdReportServiceTest {
 
     @Test
     void getCongestionReturnsMajorityLevel() {
-        when(storeFacade.getById(1L)).thenReturn(new StoreInfo(1L, 37.5662952, 126.9779451));
+        when(storeApi.getById(1L)).thenReturn(new StoreInfo(1L, 37.5662952, 126.9779451));
         when(crowdReportRepository.findLevelsByStoreIdAndCreatedAtAfter(eq(1L), any(LocalDateTime.class)))
                 .thenReturn(List.of(
                         CongestionLevel.CROWDED,
@@ -121,7 +121,7 @@ class CrowdReportServiceTest {
 
     @Test
     void getCongestionReturnsNoDataWhenRecentReportsDoNotExist() {
-        when(storeFacade.getById(1L)).thenReturn(new StoreInfo(1L, 37.5662952, 126.9779451));
+        when(storeApi.getById(1L)).thenReturn(new StoreInfo(1L, 37.5662952, 126.9779451));
         when(crowdReportRepository.findLevelsByStoreIdAndCreatedAtAfter(eq(1L), any(LocalDateTime.class)))
                 .thenReturn(List.of());
 

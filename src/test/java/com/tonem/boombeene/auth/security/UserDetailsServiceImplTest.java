@@ -1,8 +1,8 @@
 package com.tonem.boombeene.auth.security;
 
 import com.tonem.boombeene.common.exception.EntityNotFoundException;
-import com.tonem.boombeene.user.api.UserFacade;
-import com.tonem.boombeene.user.api.UserAuthInfo;
+import com.tonem.boombeene.user.UserApi;
+import com.tonem.boombeene.user.UserAuthInfo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
 class UserDetailsServiceImplTest {
 
     @Mock
-    private UserFacade userFacade;
+    private UserApi userApi;
 
     @InjectMocks
     private UserDetailsServiceImpl userDetailsService;
@@ -26,7 +26,7 @@ class UserDetailsServiceImplTest {
     @Test
     void loadUserByUsernameReturnsUserPrincipal() {
         var user = new UserAuthInfo(1L, "me@example.com", "encoded-password");
-        when(userFacade.getAuthUserByEmail("me@example.com")).thenReturn(user);
+        when(userApi.getAuthUserByEmail("me@example.com")).thenReturn(user);
 
         var userDetails = userDetailsService.loadUserByUsername("me@example.com");
 
@@ -42,7 +42,7 @@ class UserDetailsServiceImplTest {
 
     @Test
     void loadUserByUsernameThrowsWhenUserDoesNotExist() {
-        when(userFacade.getAuthUserByEmail("missing@example.com"))
+        when(userApi.getAuthUserByEmail("missing@example.com"))
                 .thenThrow(new EntityNotFoundException("User", "missing@example.com"));
 
         assertThatThrownBy(() -> userDetailsService.loadUserByUsername("missing@example.com"))

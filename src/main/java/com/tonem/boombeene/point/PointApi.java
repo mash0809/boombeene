@@ -1,7 +1,5 @@
-package com.tonem.boombeene.point.application;
+package com.tonem.boombeene.point;
 
-import com.tonem.boombeene.point.api.PointFacade;
-import com.tonem.boombeene.point.api.PointInfo;
 import com.tonem.boombeene.point.entity.UserPoint;
 import com.tonem.boombeene.point.repository.UserPointRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,11 +7,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class PointFacadeImpl implements PointFacade {
+public class PointApi {
 
     private final UserPointRepository userPointRepository;
 
-    @Override
     public PointInfo getByUserId(long userId) {
         UserPoint userPoint = userPointRepository.findByUserId(userId)
                 .orElse(null);

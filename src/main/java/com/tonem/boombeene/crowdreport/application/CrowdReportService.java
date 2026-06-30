@@ -10,8 +10,8 @@ import com.tonem.boombeene.crowdreport.exception.CooldownActiveException;
 import com.tonem.boombeene.crowdreport.exception.LocationTooFarException;
 import com.tonem.boombeene.crowdreport.repository.CrowdReportRepository;
 import com.tonem.boombeene.crowdreport.util.HaversineUtils;
-import com.tonem.boombeene.store.api.StoreFacade;
-import com.tonem.boombeene.store.api.StoreInfo;
+import com.tonem.boombeene.store.StoreApi;
+import com.tonem.boombeene.store.StoreInfo;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CrowdReportService {
 
-    private final StoreFacade storeFacade;
+    private final StoreApi storeApi;
     private final CrowdReportRepository crowdReportRepository;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -35,7 +35,7 @@ public class CrowdReportService {
 
     @Transactional
     public CrowdReportDto report(Long userId, CrowdReportRequest request) {
-        StoreInfo store = storeFacade.getById(request.storeId());
+        StoreInfo store = storeApi.getById(request.storeId());
         boolean isWithinAllowedRadius = HaversineUtils.isWithinAllowedRadius(
                 request.latitude(),
                 request.longitude(),
@@ -66,7 +66,7 @@ public class CrowdReportService {
 
     @Transactional(readOnly = true)
     public CongestionResult getCongestion(Long storeId, double latitude, double longitude) {
-        StoreInfo store = storeFacade.getById(storeId);
+        StoreInfo store = storeApi.getById(storeId);
         double distanceMeters = HaversineUtils.distanceMeters(
                 latitude,
                 longitude,

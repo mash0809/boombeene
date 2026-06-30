@@ -1,7 +1,6 @@
 package com.tonem.boombeene.auth.presentation;
 
-import com.tonem.boombeene.user.exception.DuplicateEmailException;
-import com.tonem.boombeene.user.api.DuplicateUserEmailException;
+import com.tonem.boombeene.user.DuplicateEmailException;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
@@ -15,7 +14,7 @@ class AuthExceptionHandlerTest {
     @Test
     void handleDuplicateEmailReturnsExceptionMessage() {
         var response = exceptionHandler.handleDuplicateEmail(
-                new DuplicateUserEmailException(new DuplicateEmailException())
+                new DuplicateEmailException()
         );
 
         assertThat(response.message()).isEqualTo("Email already exists");

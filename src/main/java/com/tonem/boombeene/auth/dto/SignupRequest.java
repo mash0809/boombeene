@@ -1,6 +1,6 @@
 package com.tonem.boombeene.auth.dto;
 
-import com.tonem.boombeene.user.api.SignupCommand;
+import com.tonem.boombeene.user.SignupCommand;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

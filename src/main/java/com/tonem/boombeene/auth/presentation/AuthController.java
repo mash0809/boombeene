@@ -2,7 +2,7 @@ package com.tonem.boombeene.auth.presentation;
 
 import com.tonem.boombeene.auth.dto.LoginRequest;
 import com.tonem.boombeene.auth.dto.SignupRequest;
-import com.tonem.boombeene.user.api.UserFacade;
+import com.tonem.boombeene.user.UserApi;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final UserFacade userFacade;
+    private final UserApi userApi;
     private final AuthenticationManager authenticationManager;
     private final SecurityContextRepository securityContextRepository;
     private final LogoutHandler logoutHandler;
@@ -34,7 +34,7 @@ public class AuthController {
     @PostMapping("/signup")
     @ResponseStatus(HttpStatus.CREATED)
     public void signup(@Valid @RequestBody SignupRequest request) {
-        userFacade.signup(request.toCommand());
+        userApi.signup(request.toCommand());
     }
 
     @PostMapping("/login")

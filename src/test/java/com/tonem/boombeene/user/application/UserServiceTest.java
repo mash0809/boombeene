@@ -1,11 +1,11 @@
 package com.tonem.boombeene.user.application;
 
 import com.tonem.boombeene.common.exception.EntityNotFoundException;
-import com.tonem.boombeene.point.api.PointFacade;
-import com.tonem.boombeene.point.api.PointInfo;
+import com.tonem.boombeene.point.PointApi;
+import com.tonem.boombeene.point.PointInfo;
 import com.tonem.boombeene.user.entity.User;
 import com.tonem.boombeene.user.dto.SignupRequest;
-import com.tonem.boombeene.user.exception.DuplicateEmailException;
+import com.tonem.boombeene.user.DuplicateEmailException;
 import com.tonem.boombeene.user.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,7 +36,7 @@ class UserServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
-    private PointFacade pointFacade;
+    private PointApi pointApi;
 
     @InjectMocks
     private UserService userService;
@@ -84,7 +84,7 @@ class UserServiceTest {
     void getByIdReturnsUserDto() {
         var user = User.create("me@example.com", "encoded-password", "nickname");
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(pointFacade.getByUserId(1L)).thenReturn(new PointInfo(10));
+        when(pointApi.getByUserId(1L)).thenReturn(new PointInfo(10));
 
         var userDto = userService.getById(1L);
 

@@ -1,12 +1,12 @@
 package com.tonem.boombeene.user.application;
 
 import com.tonem.boombeene.common.exception.EntityNotFoundException;
-import com.tonem.boombeene.point.api.PointFacade;
+import com.tonem.boombeene.point.PointApi;
 import com.tonem.boombeene.user.entity.User;
 import com.tonem.boombeene.user.dto.SignupRequest;
 import com.tonem.boombeene.user.dto.UserAuthDto;
 import com.tonem.boombeene.user.dto.UserDto;
-import com.tonem.boombeene.user.exception.DuplicateEmailException;
+import com.tonem.boombeene.user.DuplicateEmailException;
 import com.tonem.boombeene.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final PointFacade pointFacade;
+    private final PointApi pointApi;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
@@ -40,7 +40,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User", userId));
 
-        int pointBalance = pointFacade.getByUserId(userId).balance();
+        int pointBalance = pointApi.getByUserId(userId).balance();
 
         return UserDto.from(user, pointBalance);
     }
