@@ -1,7 +1,6 @@
 package com.tonem.boombeene.user.internal.application;
 
 import com.tonem.boombeene.common.exception.EntityNotFoundException;
-import com.tonem.boombeene.point.PointApi;
 import com.tonem.boombeene.user.internal.entity.User;
 import com.tonem.boombeene.user.internal.dto.SignupRequest;
 import com.tonem.boombeene.user.internal.dto.UserAuthDto;
@@ -18,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final PointApi pointApi;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
@@ -40,9 +38,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User", userId));
 
-        int pointBalance = pointApi.getByUserId(userId).balance();
-
-        return UserDto.from(user, pointBalance);
+        return UserDto.from(user);
     }
 
     @Transactional(readOnly = true)

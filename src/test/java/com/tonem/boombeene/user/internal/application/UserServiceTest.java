@@ -1,8 +1,6 @@
 package com.tonem.boombeene.user.internal.application;
 
 import com.tonem.boombeene.common.exception.EntityNotFoundException;
-import com.tonem.boombeene.point.PointApi;
-import com.tonem.boombeene.point.PointInfo;
 import com.tonem.boombeene.user.internal.application.UserService;
 import com.tonem.boombeene.user.internal.entity.User;
 import com.tonem.boombeene.user.internal.dto.SignupRequest;
@@ -35,9 +33,6 @@ class UserServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
-
-    @Mock
-    private PointApi pointApi;
 
     @InjectMocks
     private UserService userService;
@@ -85,7 +80,6 @@ class UserServiceTest {
     void getByIdReturnsUserDto() {
         var user = User.create("me@example.com", "encoded-password", "nickname");
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(pointApi.getByUserId(1L)).thenReturn(new PointInfo(10));
 
         var userDto = userService.getById(1L);
 

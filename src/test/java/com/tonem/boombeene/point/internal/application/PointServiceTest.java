@@ -1,7 +1,6 @@
 package com.tonem.boombeene.point.internal.application;
 
-import com.tonem.boombeene.crowdreport.internal.event.CrowdReportCompleted;
-import com.tonem.boombeene.point.internal.application.PointService;
+import com.tonem.boombeene.crowdreport.CrowdReportCompleted;
 import com.tonem.boombeene.point.internal.entity.PointLedger;
 import com.tonem.boombeene.point.internal.entity.PointType;
 import com.tonem.boombeene.point.internal.entity.UserPoint;

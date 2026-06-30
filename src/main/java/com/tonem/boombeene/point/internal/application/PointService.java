@@ -1,6 +1,6 @@
 package com.tonem.boombeene.point.internal.application;
 
-import com.tonem.boombeene.crowdreport.internal.event.CrowdReportCompleted;
+import com.tonem.boombeene.crowdreport.CrowdReportCompleted;
 import com.tonem.boombeene.point.internal.entity.PointLedger;
 import com.tonem.boombeene.point.internal.entity.UserPoint;
 import com.tonem.boombeene.point.internal.repository.PointLedgerRepository;
@@ -17,6 +17,12 @@ public class PointService {
 
     private final UserPointRepository userPointRepository;
     private final PointLedgerRepository pointLedgerRepository;
+
+    public int getBalance(long userId) {
+        return userPointRepository.findByUserId(userId)
+                .map(UserPoint::getBalance)
+                .orElse(0);
+    }
 
     @ApplicationModuleListener
     public void on(CrowdReportCompleted event) {

@@ -1,4 +1,4 @@
-package com.tonem.boombeene.crowdreport.internal.event;
+package com.tonem.boombeene.crowdreport;
 
 public record CrowdReportCompleted(Long reportId, Long userId, Long storeId) {
 }

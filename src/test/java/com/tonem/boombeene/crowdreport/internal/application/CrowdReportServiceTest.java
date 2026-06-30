@@ -1,11 +1,10 @@
 package com.tonem.boombeene.crowdreport.internal.application;
 
-import com.tonem.boombeene.crowdreport.internal.application.CrowdReportService;
 import com.tonem.boombeene.crowdreport.internal.dto.CrowdReportDto;
 import com.tonem.boombeene.crowdreport.internal.dto.CrowdReportRequest;
 import com.tonem.boombeene.crowdreport.internal.entity.CongestionLevel;
 import com.tonem.boombeene.crowdreport.internal.entity.CrowdReport;
-import com.tonem.boombeene.crowdreport.internal.event.CrowdReportCompleted;
+import com.tonem.boombeene.crowdreport.CrowdReportCompleted;
 import com.tonem.boombeene.crowdreport.internal.exception.CooldownActiveException;
 import com.tonem.boombeene.crowdreport.internal.exception.LocationTooFarException;
 import com.tonem.boombeene.crowdreport.internal.repository.CrowdReportRepository;
