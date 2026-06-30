@@ -1,7 +1,8 @@
 package com.tonem.boombeene.store.application;
 
-import com.tonem.boombeene.store.client.KakaoDocument;
-import com.tonem.boombeene.store.client.KakaoLocalApiClient;
+import com.tonem.boombeene.store.dto.KakaoCategorySearchResponse;
+import com.tonem.boombeene.store.dto.KakaoDocument;
+import com.tonem.boombeene.store.infra.KakaoLocalApiClient;
 import com.tonem.boombeene.store.dto.NearbySearchRequest;
 import com.tonem.boombeene.store.dto.StoreDto;
 import com.tonem.boombeene.store.entity.StoreCategory;
@@ -37,7 +38,7 @@ class StoreSearchServiceTest {
         var document = new KakaoDocument("12345", "테스트 식당", "127.027583", "37.498095");
         var storeDto = new StoreDto(1L, "테스트 식당", 37.498095, 127.027583, StoreCategory.RESTAURANT);
         when(kakaoLocalApiClient.searchByCategory(37.498095, 127.027583, 500, "FD6"))
-                .thenReturn(List.of(document));
+                .thenReturn(new KakaoCategorySearchResponse(List.of(document)));
         when(storeService.upsertAll(List.of(document), StoreCategory.RESTAURANT)).thenReturn(List.of(storeDto));
 
         var result = storeSearchService.searchNearby(request);

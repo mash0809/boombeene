@@ -1,7 +1,7 @@
 package com.tonem.boombeene.store.application;
 
-import com.tonem.boombeene.store.client.KakaoDocument;
-import com.tonem.boombeene.store.client.KakaoLocalApiClient;
+import com.tonem.boombeene.store.exception.KakaoApiException;
+import com.tonem.boombeene.store.infra.KakaoLocalApiClient;
 import com.tonem.boombeene.store.dto.NearbySearchRequest;
 import com.tonem.boombeene.store.dto.StoreDto;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +17,11 @@ public class StoreSearchService {
     private final StoreService storeService;
 
     public List<StoreDto> searchNearby(NearbySearchRequest request) {
-        List<KakaoDocument> documents = kakaoLocalApiClient.searchByCategory(
+        var response = kakaoLocalApiClient.searchByCategory(
                 request.latitude(), request.longitude(), request.radius(), request.category().getKakaoGroupCode());
-        return storeService.upsertAll(documents, request.category());
+        if (response.documents() == null) {
+            throw new KakaoApiException(new IllegalStateException("Kakao Local API documents is null"));
+        }
+        return storeService.upsertAll(response.documents(), request.category());
     }
 }
