@@ -1,7 +1,6 @@
 package com.tonem.boombeene.auth.presentation;
 
 import com.tonem.boombeene.common.exception.ErrorResponse;
-import com.tonem.boombeene.user.DuplicateEmailException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
@@ -11,12 +10,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice(basePackages = "com.tonem.boombeene.auth")
 public class AuthExceptionHandler {
-
-    @ExceptionHandler(DuplicateEmailException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    ErrorResponse handleDuplicateEmail(DuplicateEmailException exception) {
-        return new ErrorResponse(exception.getMessage());
-    }
 
     @ExceptionHandler(BadCredentialsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)

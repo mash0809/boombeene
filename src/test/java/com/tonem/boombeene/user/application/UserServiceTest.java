@@ -5,7 +5,7 @@ import com.tonem.boombeene.point.PointApi;
 import com.tonem.boombeene.point.PointInfo;
 import com.tonem.boombeene.user.entity.User;
 import com.tonem.boombeene.user.dto.SignupRequest;
-import com.tonem.boombeene.user.DuplicateEmailException;
+import com.tonem.boombeene.user.exception.DuplicateEmailException;
 import com.tonem.boombeene.user.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -6,7 +6,7 @@ import com.tonem.boombeene.user.entity.User;
 import com.tonem.boombeene.user.dto.SignupRequest;
 import com.tonem.boombeene.user.dto.UserAuthDto;
 import com.tonem.boombeene.user.dto.UserDto;
-import com.tonem.boombeene.user.DuplicateEmailException;
+import com.tonem.boombeene.user.exception.DuplicateEmailException;
 import com.tonem.boombeene.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
