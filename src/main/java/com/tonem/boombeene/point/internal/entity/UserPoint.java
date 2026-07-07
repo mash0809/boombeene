@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -26,6 +27,11 @@ public class UserPoint {
 
     @Column(nullable = false)
     private int balance;
+
+    // 낙관적 락 테스트용
+    @Version
+    @Column(nullable = false)
+    private Long version;
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;

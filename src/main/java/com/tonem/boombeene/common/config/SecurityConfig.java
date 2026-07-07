@@ -36,7 +36,12 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/signup", "/api/auth/login", "/api/auth/logout").permitAll()
+                        .requestMatchers(
+                                "/api/users/signup",
+                                "/api/auth/login",
+                                "/api/auth/logout",
+                                "/internal/bench/points/earn"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .build();

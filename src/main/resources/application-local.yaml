@@ -13,13 +13,20 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+    show-sql: true
     properties:
+      format_sql: true
+      use_sql_comments: true
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
     open-in-view: false
   session:
     store-type: redis
     timeout: 30m
+
+logging:
+  level:
+    org.hibernate.type: trace
 
 kakao:
   local:
