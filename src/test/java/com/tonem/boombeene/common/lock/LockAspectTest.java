@@ -92,6 +92,27 @@ class LockAspectTest {
         verify(rLock).unlock();
     }
 
+    @Test
+    void restoresInterruptStatusWhenTryLockIsInterrupted() throws Throwable {
+        InterruptedException interruptedException = new InterruptedException("interrupted");
+        when(joinPoint.getSignature()).thenReturn(methodSignature);
+        when(methodSignature.getMethod()).thenReturn(lockTargetMethod());
+        when(joinPoint.getTarget()).thenReturn(new TestLockTarget());
+        when(joinPoint.getArgs()).thenReturn(new Object[]{10L, 100L});
+        when(redissonClient.getLock("point:lock:10")).thenReturn(rLock);
+        when(rLock.tryLock(3L, 5L, TimeUnit.SECONDS)).thenThrow(interruptedException);
+
+        assertThatThrownBy(() -> lockAspect.lock(joinPoint))
+                .isInstanceOf(LockAcquisitionException.class)
+                .hasMessage("락 획득 대기 중 인터럽트가 발생했습니다: point:lock:10")
+                .hasCause(interruptedException);
+
+        assertThat(Thread.currentThread().isInterrupted()).isTrue();
+        verify(joinPoint, never()).proceed();
+        verify(rLock, never()).unlock();
+        Thread.interrupted();
+    }
+
     private Method lockTargetMethod() throws NoSuchMethodException {
         return TestLockTarget.class.getDeclaredMethod("updateBalance", Long.class, Long.class);
     }

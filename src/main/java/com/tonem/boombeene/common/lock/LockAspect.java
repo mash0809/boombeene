@@ -35,8 +35,7 @@ public class LockAspect {
         String key = resolveKey(joinPoint, method, lock.key());
 
         RLock rLock = redissonClient.getLock(key);
-        // 락 획득 실패
-        if (!rLock.tryLock(lock.waitTime(), lock.leaseTime(), lock.timeUnit())) {
+        if (!tryLock(rLock, lock, key)) {
             throw new LockAcquisitionException("락 획득에 실패했습니다: " + key);
         }
 
@@ -45,6 +44,15 @@ public class LockAspect {
         } finally {
             // finally 로 lock 해제 보장
             rLock.unlock();
+        }
+    }
+
+    private boolean tryLock(RLock rLock, DistributedLock lock, String key) {
+        try {
+            return rLock.tryLock(lock.waitTime(), lock.leaseTime(), lock.timeUnit());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new LockAcquisitionException("락 획득 대기 중 인터럽트가 발생했습니다: " + key, e);
         }
     }
 
