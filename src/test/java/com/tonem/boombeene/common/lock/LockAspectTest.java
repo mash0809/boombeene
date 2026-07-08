@@ -42,15 +42,15 @@ class LockAspectTest {
 
     @Test
     void locksWithResolvedSpelKeyAndReturnsProceedResult() throws Throwable {
-        DistributedLock distributedLock = distributedLock();
         when(joinPoint.getSignature()).thenReturn(methodSignature);
         when(methodSignature.getMethod()).thenReturn(lockTargetMethod());
+        when(joinPoint.getTarget()).thenReturn(new TestLockTarget());
         when(joinPoint.getArgs()).thenReturn(new Object[]{10L, 100L});
         when(redissonClient.getLock("point:lock:10")).thenReturn(rLock);
         when(rLock.tryLock(3L, 5L, TimeUnit.SECONDS)).thenReturn(true);
         when(joinPoint.proceed()).thenReturn("ok");
 
-        Object result = lockAspect.lock(joinPoint, distributedLock);
+        Object result = lockAspect.lock(joinPoint);
 
         assertThat(result).isEqualTo("ok");
         verify(redissonClient).getLock("point:lock:10");
@@ -60,14 +60,14 @@ class LockAspectTest {
 
     @Test
     void throwsWhenLockIsNotAcquired() throws Throwable {
-        DistributedLock distributedLock = distributedLock();
         when(joinPoint.getSignature()).thenReturn(methodSignature);
         when(methodSignature.getMethod()).thenReturn(lockTargetMethod());
+        when(joinPoint.getTarget()).thenReturn(new TestLockTarget());
         when(joinPoint.getArgs()).thenReturn(new Object[]{10L, 100L});
         when(redissonClient.getLock("point:lock:10")).thenReturn(rLock);
         when(rLock.tryLock(3L, 5L, TimeUnit.SECONDS)).thenReturn(false);
 
-        assertThatThrownBy(() -> lockAspect.lock(joinPoint, distributedLock))
+        assertThatThrownBy(() -> lockAspect.lock(joinPoint))
                 .isInstanceOf(LockAcquisitionException.class)
                 .hasMessage("락 획득에 실패했습니다: point:lock:10");
 
@@ -77,23 +77,19 @@ class LockAspectTest {
 
     @Test
     void unlocksWhenProceedThrowsException() throws Throwable {
-        DistributedLock distributedLock = distributedLock();
         RuntimeException failure = new RuntimeException("failure");
         when(joinPoint.getSignature()).thenReturn(methodSignature);
         when(methodSignature.getMethod()).thenReturn(lockTargetMethod());
+        when(joinPoint.getTarget()).thenReturn(new TestLockTarget());
         when(joinPoint.getArgs()).thenReturn(new Object[]{10L, 100L});
         when(redissonClient.getLock("point:lock:10")).thenReturn(rLock);
         when(rLock.tryLock(3L, 5L, TimeUnit.SECONDS)).thenReturn(true);
         when(joinPoint.proceed()).thenThrow(failure);
 
-        assertThatThrownBy(() -> lockAspect.lock(joinPoint, distributedLock))
+        assertThatThrownBy(() -> lockAspect.lock(joinPoint))
                 .isSameAs(failure);
 
         verify(rLock).unlock();
-    }
-
-    private DistributedLock distributedLock() throws NoSuchMethodException {
-        return lockTargetMethod().getAnnotation(DistributedLock.class);
     }
 
     private Method lockTargetMethod() throws NoSuchMethodException {

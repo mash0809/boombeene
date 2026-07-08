@@ -1,5 +1,6 @@
 package com.tonem.boombeene.common.lock;
 
+import java.lang.reflect.Method;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -7,6 +8,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.context.expression.MethodBasedEvaluationContext;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.Ordered;
@@ -26,9 +28,11 @@ public class LockAspect {
     private final ExpressionParser parser = new SpelExpressionParser();
     private final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
-    @Around("@annotation(distributedLock)")
-    public Object lock(ProceedingJoinPoint joinPoint, DistributedLock distributedLock) throws Throwable {
-        String key = resolveKey(joinPoint, distributedLock.key());
+    @Around("@annotation(com.tonem.boombeene.common.lock.DistributedLock)")
+    public Object lock(ProceedingJoinPoint joinPoint) throws Throwable {
+        Method method = getMethod(joinPoint);
+        DistributedLock distributedLock = method.getAnnotation(DistributedLock.class);
+        String key = resolveKey(joinPoint, method, distributedLock.key());
         RLock rLock = redissonClient.getLock(key);
 
         boolean acquired = rLock.tryLock(
@@ -46,11 +50,15 @@ public class LockAspect {
         }
     }
 
-    private String resolveKey(ProceedingJoinPoint joinPoint, String keyExpression) {
+    private Method getMethod(ProceedingJoinPoint joinPoint) {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        return AopUtils.getMostSpecificMethod(signature.getMethod(), joinPoint.getTarget().getClass());
+    }
+
+    private String resolveKey(ProceedingJoinPoint joinPoint, Method method, String keyExpression) {
         var context = new MethodBasedEvaluationContext(
                 joinPoint.getTarget(),
-                signature.getMethod(),
+                method,
                 joinPoint.getArgs(),
                 parameterNameDiscoverer);
 
