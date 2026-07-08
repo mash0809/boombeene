@@ -98,7 +98,7 @@ class LockAspectTest {
 
     private static class TestLockTarget {
 
-        @DistributedLock(key = "'point:lock:' + #userId")
+        @DistributedLock(key = "'point:lock:' + #userId", waitTime = 3, leaseTime = 5, timeUnit = TimeUnit.SECONDS)
         void updateBalance(Long userId, Long reportId) {
         }
     }

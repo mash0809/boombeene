@@ -54,6 +54,7 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
+// .java -> .class 로 컴파일 한 뒤에도 parameter 이름을 남기기 위함
 tasks.withType(JavaCompile).configureEach {
 	options.compilerArgs << '-parameters'
 }

@@ -8,7 +8,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.aop.support.AopUtils;
 import org.springframework.context.expression.MethodBasedEvaluationContext;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.Ordered;
@@ -30,37 +29,33 @@ public class LockAspect {
 
     @Around("@annotation(com.tonem.boombeene.common.lock.DistributedLock)")
     public Object lock(ProceedingJoinPoint joinPoint) throws Throwable {
-        Method method = getMethod(joinPoint);
-        DistributedLock distributedLock = method.getAnnotation(DistributedLock.class);
-        String key = resolveKey(joinPoint, method, distributedLock.key());
-        RLock rLock = redissonClient.getLock(key);
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        Method method = signature.getMethod();
+        DistributedLock lock = method.getAnnotation(DistributedLock.class);
+        String key = resolveKey(joinPoint, method, lock.key());
 
-        boolean acquired = rLock.tryLock(
-                distributedLock.waitTime(),
-                distributedLock.leaseTime(),
-                distributedLock.timeUnit());
-        if (!acquired) {
+        RLock rLock = redissonClient.getLock(key);
+        // 락 획득 실패
+        if (!rLock.tryLock(lock.waitTime(), lock.leaseTime(), lock.timeUnit())) {
             throw new LockAcquisitionException("락 획득에 실패했습니다: " + key);
         }
 
         try {
             return joinPoint.proceed();
         } finally {
+            // finally 로 lock 해제 보장
             rLock.unlock();
         }
     }
 
-    private Method getMethod(ProceedingJoinPoint joinPoint) {
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        return AopUtils.getMostSpecificMethod(signature.getMethod(), joinPoint.getTarget().getClass());
-    }
-
+    // SpEL 표현식 -> 실제 파라미터 값을 기반으로 String key 로 치환 (ex: "'point:lock:' + #userId" -> "point:lock:10")
     private String resolveKey(ProceedingJoinPoint joinPoint, Method method, String keyExpression) {
         var context = new MethodBasedEvaluationContext(
                 joinPoint.getTarget(),
                 method,
                 joinPoint.getArgs(),
-                parameterNameDiscoverer);
+                parameterNameDiscoverer
+        );
 
         return parser.parseExpression(keyExpression).getValue(context, String.class);
     }

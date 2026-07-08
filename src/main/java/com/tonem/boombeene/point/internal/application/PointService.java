@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.concurrent.TimeUnit;
+
 @Service
 @RequiredArgsConstructor
 public class PointService {
@@ -25,7 +27,7 @@ public class PointService {
                 .orElse(0);
     }
 
-    @DistributedLock(key = "'point:lock:' + #userId")
+    @DistributedLock(key = "'point:lock:' + #userId", waitTime = 3, leaseTime = 5, timeUnit = TimeUnit.SECONDS)
     @Transactional
     public void updateBalance(Long userId, Long reportId) {
         String idempotencyKey = PointLedger.earnKey(userId, reportId);
