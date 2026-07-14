@@ -7,7 +7,7 @@ CREATE TABLE user_points (
     UNIQUE KEY uk_user_points_user_id (user_id)
 );
 
-CREATE TABLE point_ledger (
+CREATE TABLE point_ledgers (
     id              BIGINT       NOT NULL AUTO_INCREMENT,
     user_id         BIGINT       NOT NULL,
     type            VARCHAR(10)  NOT NULL,
