@@ -30,8 +30,9 @@ public class CrowdReportService {
     private final StoreApi storeApi;
     private final CrowdReportRepository crowdReportRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final CrowdReportCooldownMarker cooldownMarker;
 
-    private final int COOLDOWN_MINUTES = 30;
+    private static final int CONGESTION_WINDOW_MINUTES = 30;
 
     @Transactional
     public CrowdReportDto report(Long userId, CrowdReportRequest request) {
@@ -43,25 +44,28 @@ public class CrowdReportService {
                 store.longitude(),
                 request.gpsAccuracy()
         );
-
         // 혼잡도 리포트 할 수 있는 거리가 아닌 경우 (허용 반경에서 벗어나있음)
         if (!isWithinAllowedRadius) {
             throw new LocationTooFarException();
         }
 
-        // 30분 이내에 이미 같은 가게에 혼잡도 리포트한 경우
-        LocalDateTime cutoff = LocalDateTime.now().minusMinutes(COOLDOWN_MINUTES);
-        if (crowdReportRepository.existsByUserIdAndStoreIdAndCreatedAtAfter(userId, request.storeId(), cutoff)) {
+        // 아직 해당 스토어에 혼잡도 리포트 할 수 없는 경우 (SET NX PX 로 write 시도 실패)
+        if (!cooldownMarker.tryMark(userId, request.storeId())) {
             throw new CooldownActiveException();
         }
 
-        CrowdReport saved = crowdReportRepository.save(
-                CrowdReport.create(request.storeId(), userId, request.level()));
+        try {
+            CrowdReport saved = crowdReportRepository.save(
+                    CrowdReport.create(request.storeId(), userId, request.level()));
 
-        // 혼잡도 리포트 생성 event 발행
-        eventPublisher.publishEvent(new CrowdReportCompleted(saved.getId(), userId, request.storeId()));
+            // 혼잡도 리포트 생성 event 발행
+            eventPublisher.publishEvent(new CrowdReportCompleted(saved.getId(), userId, request.storeId()));
 
-        return new CrowdReportDto(saved.getId());
+            return new CrowdReportDto(saved.getId());
+        } catch (RuntimeException e) {
+            cooldownMarker.cancel(userId, request.storeId());
+            throw e;
+        }
     }
 
     @Transactional(readOnly = true)
@@ -74,7 +78,7 @@ public class CrowdReportService {
                 store.longitude()
         );
 
-        LocalDateTime cutoff = LocalDateTime.now().minusMinutes(COOLDOWN_MINUTES);
+        LocalDateTime cutoff = LocalDateTime.now().minusMinutes(CONGESTION_WINDOW_MINUTES);
         // 최근 30분동안 달린 혼잡도 리포트 조회
         var levels = crowdReportRepository.findLevelsByStoreIdAndCreatedAtAfter(storeId, cutoff);
 

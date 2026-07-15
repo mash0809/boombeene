@@ -24,6 +24,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -41,6 +42,9 @@ class CrowdReportServiceTest {
     @Mock
     private ApplicationEventPublisher eventPublisher;
 
+    @Mock
+    private CrowdReportCooldownMarker cooldownMarker;
+
     @InjectMocks
     private CrowdReportService crowdReportService;
 
@@ -49,8 +53,7 @@ class CrowdReportServiceTest {
         var request = new CrowdReportRequest(1L, 37.5662952, 126.9779451, 0.0, CongestionLevel.NORMAL);
 
         when(storeApi.getById(1L)).thenReturn(new StoreInfo(1L, 37.5662952, 126.9779451));
-        when(crowdReportRepository.existsByUserIdAndStoreIdAndCreatedAtAfter(eq(10L), eq(1L), any(LocalDateTime.class)))
-                .thenReturn(false);
+        when(cooldownMarker.tryMark(10L, 1L)).thenReturn(true);
         when(crowdReportRepository.save(any(CrowdReport.class))).thenAnswer(invocation -> {
             CrowdReport report = invocation.getArgument(0);
             ReflectionTestUtils.setField(report, "id", 99L);
@@ -81,6 +84,7 @@ class CrowdReportServiceTest {
         assertThatThrownBy(() -> crowdReportService.report(10L, request))
                 .isInstanceOf(LocationTooFarException.class);
 
+        verify(cooldownMarker, never()).tryMark(anyLong(), anyLong());
         verify(crowdReportRepository, never()).save(any());
         verify(eventPublisher, never()).publishEvent(any());
     }
@@ -89,13 +93,27 @@ class CrowdReportServiceTest {
     void reportThrowsWhenCooldownIsActive() {
         var request = new CrowdReportRequest(1L, 37.5662952, 126.9779451, 0.0, CongestionLevel.NORMAL);
         when(storeApi.getById(1L)).thenReturn(new StoreInfo(1L, 37.5662952, 126.9779451));
-        when(crowdReportRepository.existsByUserIdAndStoreIdAndCreatedAtAfter(eq(10L), eq(1L), any(LocalDateTime.class)))
-                .thenReturn(true);
+        when(cooldownMarker.tryMark(10L, 1L)).thenReturn(false);
 
         assertThatThrownBy(() -> crowdReportService.report(10L, request))
                 .isInstanceOf(CooldownActiveException.class);
 
         verify(crowdReportRepository, never()).save(any());
+        verify(eventPublisher, never()).publishEvent(any());
+    }
+
+    @Test
+    void reportCancelsCooldownWhenSaveFails() {
+        var request = new CrowdReportRequest(1L, 37.5662952, 126.9779451, 0.0, CongestionLevel.NORMAL);
+        var saveFailure = new RuntimeException("save failed");
+        when(storeApi.getById(1L)).thenReturn(new StoreInfo(1L, 37.5662952, 126.9779451));
+        when(cooldownMarker.tryMark(10L, 1L)).thenReturn(true);
+        when(crowdReportRepository.save(any(CrowdReport.class))).thenThrow(saveFailure);
+
+        assertThatThrownBy(() -> crowdReportService.report(10L, request))
+                .isSameAs(saveFailure);
+
+        verify(cooldownMarker).cancel(10L, 1L);
         verify(eventPublisher, never()).publishEvent(any());
     }
 

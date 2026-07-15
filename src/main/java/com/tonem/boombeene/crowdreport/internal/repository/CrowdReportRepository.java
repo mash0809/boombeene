@@ -10,8 +10,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface CrowdReportRepository extends JpaRepository<CrowdReport, Long> {
 
-    boolean existsByUserIdAndStoreIdAndCreatedAtAfter(Long userId, Long storeId, LocalDateTime cutoff);
-
     @Query("SELECT c.level FROM CrowdReport c WHERE c.storeId = :storeId AND c.createdAt > :cutoff")
     List<CongestionLevel> findLevelsByStoreIdAndCreatedAtAfter(
             @Param("storeId") Long storeId,
