@@ -32,7 +32,7 @@ public class CrowdReportService {
     private final ApplicationEventPublisher eventPublisher;
     private final CrowdReportCooldownMarker cooldownMarker;
 
-    private final int COOLDOWN_MINUTES = 30;
+    private static final int CONGESTION_WINDOW_MINUTES = 30;
 
     @Transactional
     public CrowdReportDto report(Long userId, CrowdReportRequest request) {
@@ -79,7 +79,7 @@ public class CrowdReportService {
                 store.longitude()
         );
 
-        LocalDateTime cutoff = LocalDateTime.now().minusMinutes(COOLDOWN_MINUTES);
+        LocalDateTime cutoff = LocalDateTime.now().minusMinutes(CONGESTION_WINDOW_MINUTES);
         // 최근 30분동안 달린 혼잡도 리포트 조회
         var levels = crowdReportRepository.findLevelsByStoreIdAndCreatedAtAfter(storeId, cutoff);
 
