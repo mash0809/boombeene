@@ -3,6 +3,7 @@ package com.tonem.boombeene.user.internal.presentation;
 import com.tonem.boombeene.user.internal.application.UserService;
 import com.tonem.boombeene.user.internal.dto.UserDto;
 import com.tonem.boombeene.user.internal.presentation.UserController;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,6 +23,7 @@ class UserControllerTest {
     private UserController userController;
 
     @Test
+    @DisplayName("인증된 사용자 정보를 반환한다")
     void meReturnsAuthenticatedUser() {
         when(userService.getById(1L)).thenReturn(new UserDto(1L, "me@example.com", "nickname"));
 

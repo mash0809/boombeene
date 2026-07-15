@@ -2,6 +2,7 @@ package com.tonem.boombeene.store;
 
 import com.tonem.boombeene.common.exception.EntityNotFoundException;
 import com.tonem.boombeene.store.internal.repository.StoreRepository;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +24,7 @@ class StoreApiTest {
     private StoreApi storeApi;
 
     @Test
+    @DisplayName("존재하지 않는 매장을 조회하면 EntityNotFoundException을 던진다")
     void getByIdThrowsEntityNotFoundExceptionWhenStoreDoesNotExist() {
         when(storeRepository.findById(1L)).thenReturn(Optional.empty());
 

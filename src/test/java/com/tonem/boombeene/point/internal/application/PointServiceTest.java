@@ -7,6 +7,7 @@ import com.tonem.boombeene.point.internal.repository.PointLedgerRepository;
 import com.tonem.boombeene.point.internal.repository.UserPointRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -37,6 +38,7 @@ class PointServiceTest {
     }
 
     @Test
+    @DisplayName("신규 사용자는 포인트를 새로 적립한다")
     void updateBalanceEarnsPointForNewUser() {
         String idempotencyKey = PointLedger.earnKey(10L, 100L);
         when(pointLedgerRepository.existsByIdempotencyKey(idempotencyKey)).thenReturn(false);
@@ -61,6 +63,7 @@ class PointServiceTest {
     }
 
     @Test
+    @DisplayName("기존 사용자는 잔액에 포인트를 더한다")
     void updateBalanceAddsPointToExistingUser() {
         var userPoint = UserPoint.create(10L);
         String idempotencyKey = PointLedger.earnKey(10L, 100L);
@@ -79,6 +82,7 @@ class PointServiceTest {
     }
 
     @Test
+    @DisplayName("멱등성 키가 이미 존재하면 적립을 건너뛴다")
     void updateBalanceSkipsWhenIdempotencyKeyAlreadyExists() {
         String idempotencyKey = PointLedger.earnKey(10L, 100L);
         when(pointLedgerRepository.existsByIdempotencyKey(idempotencyKey)).thenReturn(true);

@@ -6,6 +6,7 @@ import com.tonem.boombeene.crowdreport.internal.dto.CrowdReportDto;
 import com.tonem.boombeene.crowdreport.internal.dto.CrowdReportRequest;
 import com.tonem.boombeene.crowdreport.internal.entity.CongestionLevel;
 import com.tonem.boombeene.crowdreport.internal.presentation.CrowdReportController;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,6 +26,7 @@ class CrowdReportControllerTest {
     private CrowdReportController crowdReportController;
 
     @Test
+    @DisplayName("서비스 DTO로부터 제보 응답을 생성한다")
     void reportCreatesResponseFromServiceDto() {
         var request = new CrowdReportRequest(1L, 37.5662952, 126.9779451, 0.0, CongestionLevel.NORMAL);
         when(crowdReportService.report(10L, request)).thenReturn(new CrowdReportDto(99L));
@@ -35,6 +37,7 @@ class CrowdReportControllerTest {
     }
 
     @Test
+    @DisplayName("제보 건수를 포함한 혼잡도 응답을 생성한다")
     void getCongestionCreatesResponseWithReportCount() {
         when(crowdReportService.getCongestion(1L, 37.5662952, 126.9779451))
                 .thenReturn(CongestionResult.of(CongestionLevel.CROWDED, 3, 10.5));

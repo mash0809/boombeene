@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -41,6 +42,7 @@ class LockAspectTest {
     }
 
     @Test
+    @DisplayName("SpEL로 해석한 키로 락을 걸고 원본 메소드의 반환값을 그대로 반환한다")
     void locksWithResolvedSpelKeyAndReturnsProceedResult() throws Throwable {
         when(joinPoint.getSignature()).thenReturn(methodSignature);
         when(methodSignature.getMethod()).thenReturn(lockTargetMethod());
@@ -59,6 +61,7 @@ class LockAspectTest {
     }
 
     @Test
+    @DisplayName("락 획득에 실패하면 예외를 던진다")
     void throwsWhenLockIsNotAcquired() throws Throwable {
         when(joinPoint.getSignature()).thenReturn(methodSignature);
         when(methodSignature.getMethod()).thenReturn(lockTargetMethod());
@@ -76,6 +79,7 @@ class LockAspectTest {
     }
 
     @Test
+    @DisplayName("원본 메소드 실행 중 예외가 발생해도 락을 해제한다")
     void unlocksWhenProceedThrowsException() throws Throwable {
         RuntimeException failure = new RuntimeException("failure");
         when(joinPoint.getSignature()).thenReturn(methodSignature);
@@ -93,6 +97,7 @@ class LockAspectTest {
     }
 
     @Test
+    @DisplayName("락 대기 중 인터럽트가 발생하면 인터럽트 상태를 복원하고 예외를 던진다")
     void restoresInterruptStatusWhenTryLockIsInterrupted() throws Throwable {
         InterruptedException interruptedException = new InterruptedException("interrupted");
         when(joinPoint.getSignature()).thenReturn(methodSignature);

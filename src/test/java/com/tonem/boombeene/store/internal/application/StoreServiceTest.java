@@ -6,6 +6,7 @@ import com.tonem.boombeene.store.internal.entity.Store;
 import com.tonem.boombeene.store.internal.entity.StoreCategory;
 import com.tonem.boombeene.store.internal.exception.KakaoApiException;
 import com.tonem.boombeene.store.internal.repository.StoreRepository;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -35,6 +36,7 @@ class StoreServiceTest {
     private StoreService storeService;
 
     @Test
+    @DisplayName("캐시에 없는 신규 매장은 일괄 저장한다")
     void upsertAllBatchSavesNewStoresWhenNotCached() {
         var document = new KakaoDocument("12345", "테스트 식당", "127.027583", "37.498095");
         when(storeRepository.findByPlaceIdIn(List.of("12345"))).thenReturn(List.of());
@@ -51,6 +53,7 @@ class StoreServiceTest {
     }
 
     @Test
+    @DisplayName("이미 존재하는 매장은 재저장 없이 정보만 갱신한다")
     void upsertAllUpdatesExistingStoreWithoutSavingAgain() {
         var document = new KakaoDocument("12345", "새 이름", "127.027583", "37.498095");
         var existingStore = Store.create("12345", "옛 이름", 37.0, 127.0, StoreCategory.CAFE);
@@ -64,6 +67,7 @@ class StoreServiceTest {
     }
 
     @Test
+    @DisplayName("검색 결과가 없으면 저장소 호출 없이 빈 리스트를 반환한다")
     void upsertAllReturnsEmptyListWithoutRepositoryCallsWhenNoDocuments() {
         var result = storeService.upsertAll(List.of(), StoreCategory.RESTAURANT);
 
@@ -73,6 +77,7 @@ class StoreServiceTest {
     }
 
     @Test
+    @DisplayName("검색 결과 건수와 무관하게 조회/저장 저장소 호출은 각각 한 번만 수행한다")
     void upsertAllCallsRepositoriesOnceRegardlessOfResultCount() {
         var documents = List.of(
                 new KakaoDocument("1", "가게1", "127.0", "37.0"),
@@ -89,6 +94,7 @@ class StoreServiceTest {
     }
 
     @Test
+    @DisplayName("잘못된 좌표값은 KakaoApiException으로 감싸서 던진다")
     void upsertAllWrapsInvalidCoordinateAsKakaoApiException() {
         var document = new KakaoDocument("12345", "테스트 식당", "", "37.498095");
         when(storeRepository.findByPlaceIdIn(List.of("12345"))).thenReturn(List.of());
@@ -98,6 +104,7 @@ class StoreServiceTest {
     }
 
     @Test
+    @DisplayName("upsertAll은 @Transactional이 적용되어 있다")
     void upsertAllIsTransactional() throws NoSuchMethodException {
         Method method = StoreService.class.getDeclaredMethod("upsertAll", List.class, StoreCategory.class);
 

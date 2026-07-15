@@ -2,6 +2,7 @@ package com.tonem.boombeene.common.presentation;
 
 import com.tonem.boombeene.common.exception.CommonExceptionHandler;
 import com.tonem.boombeene.common.exception.EntityNotFoundException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -17,6 +18,7 @@ class CommonExceptionHandlerTest {
     private final CommonExceptionHandler exceptionHandler = new CommonExceptionHandler();
 
     @Test
+    @DisplayName("EntityNotFoundException 발생 시 예외 메시지를 응답으로 반환한다")
     void handleEntityNotFoundReturnsExceptionMessage() {
         var response = exceptionHandler.handleEntityNotFound(new EntityNotFoundException("User", 1L));
 
@@ -24,6 +26,7 @@ class CommonExceptionHandlerTest {
     }
 
     @Test
+    @DisplayName("MethodArgumentNotValidException 발생 시 검증 오류 응답을 반환한다")
     void handleMethodArgumentNotValidReturnsErrorResponse() throws NoSuchMethodException {
         var target = new ValidationTarget();
         var bindingResult = new BeanPropertyBindingResult(target, "request");
