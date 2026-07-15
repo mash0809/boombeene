@@ -9,6 +9,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,6 +35,7 @@ class PointServiceLockIntegrationTest extends AbstractIntegrationTest {
     private PointLedgerRepository pointLedgerRepository;
 
     @Test
+    @DisplayName("동시 요청이 발생해도 잔액 정합성을 유지한다")
     void updateBalanceKeepsBalanceConsistentForConcurrentRequests() throws Exception {
         // 신규 row 생성 경쟁이 아니라 기존 balance 갱신의 lost update 여부만 검증한다.
         userPointRepository.save(UserPoint.create(USER_ID));
