@@ -8,6 +8,7 @@ import com.tonem.boombeene.store.internal.infra.KakaoLocalApiClient;
 import com.tonem.boombeene.store.internal.dto.NearbySearchRequest;
 import com.tonem.boombeene.store.internal.dto.StoreDto;
 import com.tonem.boombeene.store.internal.entity.StoreCategory;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,6 +36,7 @@ class StoreSearchServiceTest {
     private StoreSearchService storeSearchService;
 
     @Test
+    @DisplayName("주변 검색 시 카카오 API를 호출한 뒤 매장 upsert를 위임한다")
     void searchNearbyCallsKakaoBeforeDelegatingStoreUpsert() {
         var request = new NearbySearchRequest(37.498095, 127.027583, 500, StoreCategory.RESTAURANT);
         var document = new KakaoDocument("12345", "테스트 식당", "127.027583", "37.498095");
@@ -51,6 +53,7 @@ class StoreSearchServiceTest {
     }
 
     @Test
+    @DisplayName("카카오 API 호출이 트랜잭션 밖에서 실행되도록 searchNearby는 @Transactional이 아니다")
     void searchNearbyIsNotTransactionalBecauseKakaoCallMustRunOutsideTransaction() throws NoSuchMethodException {
         Method method = StoreSearchService.class.getDeclaredMethod("searchNearby", NearbySearchRequest.class);
 
