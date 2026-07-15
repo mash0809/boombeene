@@ -10,17 +10,21 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CrowdReportCooldownMarker {
 
+    // report 작성 후 같은 store 에 대해서 30분간 작성 제한
     private static final Duration COOLDOWN_TTL = Duration.ofMinutes(30);
 
     private final RedissonClient redissonClient;
 
     public boolean tryMark(Long userId, Long storeId) {
-        RBucket<String> bucket = redissonClient.getBucket(key(userId, storeId));
-        return bucket.setIfAbsent("1", COOLDOWN_TTL);
+        return getBucket(userId, storeId).setIfAbsent("1", COOLDOWN_TTL);
     }
 
     public void cancel(Long userId, Long storeId) {
-        redissonClient.getBucket(key(userId, storeId)).deleteAsync();
+        getBucket(userId, storeId).deleteAsync();
+    }
+
+    private RBucket<String> getBucket(Long userId, Long storeId) {
+        return redissonClient.getBucket(key(userId, storeId));
     }
 
     private String key(Long userId, Long storeId) {

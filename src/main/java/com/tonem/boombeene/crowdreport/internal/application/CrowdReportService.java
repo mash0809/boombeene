@@ -44,13 +44,12 @@ public class CrowdReportService {
                 store.longitude(),
                 request.gpsAccuracy()
         );
-
         // 혼잡도 리포트 할 수 있는 거리가 아닌 경우 (허용 반경에서 벗어나있음)
         if (!isWithinAllowedRadius) {
             throw new LocationTooFarException();
         }
 
-        // 조회와 마킹을 원자적으로 처리해 동시 요청에서도 30분 쿨다운을 보장한다.
+        // 아직 해당 스토어에 혼잡도 리포트 할 수 없는 경우 (SET NX PX 로 write 시도 실패)
         if (!cooldownMarker.tryMark(userId, request.storeId())) {
             throw new CooldownActiveException();
         }

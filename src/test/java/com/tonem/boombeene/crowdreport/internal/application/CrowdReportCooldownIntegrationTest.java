@@ -71,7 +71,7 @@ class CrowdReportCooldownIntegrationTest extends AbstractIntegrationTest {
             assertThat(readyLatch.await(5, TimeUnit.SECONDS)).isTrue();
             startLatch.countDown();
 
-            var results = new ArrayList<Object>();
+            var results = new ArrayList<>();
             for (var future : futures) {
                 results.add(future.get(10, TimeUnit.SECONDS));
             }
