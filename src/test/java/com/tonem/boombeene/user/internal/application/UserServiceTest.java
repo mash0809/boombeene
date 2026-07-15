@@ -6,6 +6,7 @@ import com.tonem.boombeene.user.internal.entity.User;
 import com.tonem.boombeene.user.internal.dto.SignupRequest;
 import com.tonem.boombeene.user.internal.exception.DuplicateEmailException;
 import com.tonem.boombeene.user.internal.repository.UserRepository;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -38,6 +39,7 @@ class UserServiceTest {
     private UserService userService;
 
     @Test
+    @DisplayName("회원가입 시 비밀번호를 암호화하여 사용자를 저장한다")
     void signupEncodesPasswordAndSavesUser() {
         var request = new SignupRequest("me@example.com", "password123", "nickname");
         when(passwordEncoder.encode("password123")).thenReturn("encoded-password");
@@ -53,6 +55,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("이미 존재하는 이메일로 가입하면 예외를 던진다")
     void signupThrowsWhenEmailAlreadyExists() {
         var request = new SignupRequest("me@example.com", "password123", "nickname");
         when(userRepository.existsByEmail("me@example.com")).thenReturn(true);
@@ -64,6 +67,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("저장 중 발생한 DataIntegrityViolationException을 그대로 다시 던진다")
     void signupRethrowsDataIntegrityViolationFromSave() {
         var request = new SignupRequest("me@example.com", "password123", "nickname");
         var exception = new DataIntegrityViolationException("other constraint");
@@ -77,6 +81,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("ID로 조회 시 UserDto를 반환한다")
     void getByIdReturnsUserDto() {
         var user = User.create("me@example.com", "encoded-password", "nickname");
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
@@ -89,6 +94,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("존재하지 않는 ID로 조회하면 예외를 던진다")
     void getByIdThrowsWhenUserDoesNotExist() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -97,6 +103,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("이메일로 조회 시 UserAuthDto를 반환한다")
     void getByEmailReturnsUserAuthDto() {
         var user = User.create("me@example.com", "encoded-password", "nickname");
         when(userRepository.findByEmail("me@example.com")).thenReturn(Optional.of(user));
@@ -109,6 +116,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("존재하지 않는 이메일로 조회하면 예외를 던진다")
     void getByEmailThrowsWhenUserDoesNotExist() {
         when(userRepository.findByEmail("missing@example.com")).thenReturn(Optional.empty());
 
