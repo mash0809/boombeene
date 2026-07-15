@@ -13,6 +13,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,6 +41,7 @@ class CrowdReportCooldownIntegrationTest extends AbstractIntegrationTest {
     private StoreApi storeApi;
 
     @Test
+    @DisplayName("쿨다운 중 동시 요청이 와도 단 하나의 요청만 성공한다")
     void reportAllowsOnlyOneConcurrentRequestDuringCooldown() throws Exception {
         when(storeApi.getById(STORE_ID)).thenReturn(new StoreInfo(STORE_ID, 37.5662952, 126.9779451));
         var request = new CrowdReportRequest(

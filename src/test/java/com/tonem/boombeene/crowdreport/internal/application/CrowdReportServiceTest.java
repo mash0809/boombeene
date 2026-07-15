@@ -12,6 +12,7 @@ import com.tonem.boombeene.store.StoreApi;
 import com.tonem.boombeene.store.StoreInfo;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -49,6 +50,7 @@ class CrowdReportServiceTest {
     private CrowdReportService crowdReportService;
 
     @Test
+    @DisplayName("제보를 저장하고 완료 이벤트를 발행한다")
     void reportSavesCrowdReportAndPublishesCompletedEvent() {
         var request = new CrowdReportRequest(1L, 37.5662952, 126.9779451, 0.0, CongestionLevel.NORMAL);
 
@@ -77,6 +79,7 @@ class CrowdReportServiceTest {
     }
 
     @Test
+    @DisplayName("사용자 위치가 매장과 너무 멀면 예외를 던진다")
     void reportThrowsWhenUserLocationIsTooFar() {
         var request = new CrowdReportRequest(1L, 37.5662952, 126.9779451, 0.0, CongestionLevel.NORMAL);
         when(storeApi.getById(1L)).thenReturn(new StoreInfo(1L, 37.5657037, 126.9768616));
@@ -90,6 +93,7 @@ class CrowdReportServiceTest {
     }
 
     @Test
+    @DisplayName("쿨다운이 활성화된 상태면 예외를 던진다")
     void reportThrowsWhenCooldownIsActive() {
         var request = new CrowdReportRequest(1L, 37.5662952, 126.9779451, 0.0, CongestionLevel.NORMAL);
         when(storeApi.getById(1L)).thenReturn(new StoreInfo(1L, 37.5662952, 126.9779451));
@@ -103,6 +107,7 @@ class CrowdReportServiceTest {
     }
 
     @Test
+    @DisplayName("저장에 실패하면 쿨다운을 취소한다")
     void reportCancelsCooldownWhenSaveFails() {
         var request = new CrowdReportRequest(1L, 37.5662952, 126.9779451, 0.0, CongestionLevel.NORMAL);
         var saveFailure = new RuntimeException("save failed");
@@ -118,6 +123,7 @@ class CrowdReportServiceTest {
     }
 
     @Test
+    @DisplayName("혼잡도 조회 시 다수를 차지하는 레벨을 반환한다")
     void getCongestionReturnsMajorityLevel() {
         when(storeApi.getById(1L)).thenReturn(new StoreInfo(1L, 37.5662952, 126.9779451));
         when(crowdReportRepository.findLevelsByStoreIdAndCreatedAtAfter(eq(1L), any(LocalDateTime.class)))
@@ -138,6 +144,7 @@ class CrowdReportServiceTest {
     }
 
     @Test
+    @DisplayName("최근 제보가 없으면 데이터 없음 상태를 반환한다")
     void getCongestionReturnsNoDataWhenRecentReportsDoNotExist() {
         when(storeApi.getById(1L)).thenReturn(new StoreInfo(1L, 37.5662952, 126.9779451));
         when(crowdReportRepository.findLevelsByStoreIdAndCreatedAtAfter(eq(1L), any(LocalDateTime.class)))
