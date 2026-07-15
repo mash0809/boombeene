@@ -30,6 +30,7 @@ public class CrowdReportService {
     private final StoreApi storeApi;
     private final CrowdReportRepository crowdReportRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final CrowdReportCooldownMarker cooldownMarker;
 
     private final int COOLDOWN_MINUTES = 30;
 
@@ -49,19 +50,23 @@ public class CrowdReportService {
             throw new LocationTooFarException();
         }
 
-        // 30분 이내에 이미 같은 가게에 혼잡도 리포트한 경우
-        LocalDateTime cutoff = LocalDateTime.now().minusMinutes(COOLDOWN_MINUTES);
-        if (crowdReportRepository.existsByUserIdAndStoreIdAndCreatedAtAfter(userId, request.storeId(), cutoff)) {
+        // 조회와 마킹을 원자적으로 처리해 동시 요청에서도 30분 쿨다운을 보장한다.
+        if (!cooldownMarker.tryMark(userId, request.storeId())) {
             throw new CooldownActiveException();
         }
 
-        CrowdReport saved = crowdReportRepository.save(
-                CrowdReport.create(request.storeId(), userId, request.level()));
+        try {
+            CrowdReport saved = crowdReportRepository.save(
+                    CrowdReport.create(request.storeId(), userId, request.level()));
 
-        // 혼잡도 리포트 생성 event 발행
-        eventPublisher.publishEvent(new CrowdReportCompleted(saved.getId(), userId, request.storeId()));
+            // 혼잡도 리포트 생성 event 발행
+            eventPublisher.publishEvent(new CrowdReportCompleted(saved.getId(), userId, request.storeId()));
 
-        return new CrowdReportDto(saved.getId());
+            return new CrowdReportDto(saved.getId());
+        } catch (RuntimeException e) {
+            cooldownMarker.cancel(userId, request.storeId());
+            throw e;
+        }
     }
 
     @Transactional(readOnly = true)
