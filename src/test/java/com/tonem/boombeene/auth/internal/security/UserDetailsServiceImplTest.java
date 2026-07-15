@@ -5,6 +5,7 @@ import com.tonem.boombeene.auth.internal.security.UserPrincipal;
 import com.tonem.boombeene.common.exception.EntityNotFoundException;
 import com.tonem.boombeene.user.UserApi;
 import com.tonem.boombeene.user.UserAuthInfo;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,6 +27,7 @@ class UserDetailsServiceImplTest {
     private UserDetailsServiceImpl userDetailsService;
 
     @Test
+    @DisplayName("사용자명으로 조회 시 UserPrincipal을 반환한다")
     void loadUserByUsernameReturnsUserPrincipal() {
         var user = new UserAuthInfo(1L, "me@example.com", "encoded-password");
         when(userApi.getAuthUserByEmail("me@example.com")).thenReturn(user);
@@ -43,6 +45,7 @@ class UserDetailsServiceImplTest {
     }
 
     @Test
+    @DisplayName("존재하지 않는 사용자를 조회하면 예외를 던진다")
     void loadUserByUsernameThrowsWhenUserDoesNotExist() {
         when(userApi.getAuthUserByEmail("missing@example.com"))
                 .thenThrow(new EntityNotFoundException("User", "missing@example.com"));
