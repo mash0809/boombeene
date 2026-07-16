@@ -49,7 +49,8 @@ class CrowdReportCooldownIntegrationTest extends AbstractIntegrationTest {
                 37.5662952,
                 126.9779451,
                 0.0,
-                CongestionLevel.NORMAL
+                CongestionLevel.NORMAL,
+                null
         );
         var readyLatch = new CountDownLatch(THREAD_COUNT);
         var startLatch = new CountDownLatch(1);

@@ -6,6 +6,7 @@ import com.tonem.boombeene.crowdreport.internal.dto.CrowdReportDto;
 import com.tonem.boombeene.crowdreport.internal.dto.CrowdReportRequest;
 import com.tonem.boombeene.crowdreport.internal.entity.CongestionLevel;
 import com.tonem.boombeene.crowdreport.internal.presentation.CrowdReportController;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +29,14 @@ class CrowdReportControllerTest {
     @Test
     @DisplayName("서비스 DTO로부터 제보 응답을 생성한다")
     void reportCreatesResponseFromServiceDto() {
-        var request = new CrowdReportRequest(1L, 37.5662952, 126.9779451, 0.0, CongestionLevel.NORMAL);
+        var request = new CrowdReportRequest(
+                1L,
+                37.5662952,
+                126.9779451,
+                0.0,
+                CongestionLevel.NORMAL,
+                "좌석이 여유로워요"
+        );
         when(crowdReportService.report(10L, request)).thenReturn(new CrowdReportDto(99L));
 
         var response = crowdReportController.report(10L, request);
@@ -40,7 +48,12 @@ class CrowdReportControllerTest {
     @DisplayName("제보 건수를 포함한 혼잡도 응답을 생성한다")
     void getCongestionCreatesResponseWithReportCount() {
         when(crowdReportService.getCongestion(1L, 37.5662952, 126.9779451))
-                .thenReturn(CongestionResult.of(CongestionLevel.CROWDED, 3, 10.5));
+                .thenReturn(CongestionResult.of(
+                        CongestionLevel.CROWDED,
+                        3,
+                        10.5,
+                        List.of("줄이 길어요", "곧 자리가 날 것 같아요")
+                ));
 
         var response = crowdReportController.getCongestion(1L, 37.5662952, 126.9779451);
 
@@ -48,5 +61,6 @@ class CrowdReportControllerTest {
         assertThat(response.level()).isEqualTo(CongestionLevel.CROWDED);
         assertThat(response.count()).isEqualTo(3);
         assertThat(response.distanceMeters()).isEqualTo(10.5);
+        assertThat(response.comments()).containsExactly("줄이 길어요", "곧 자리가 날 것 같아요");
     }
 }
