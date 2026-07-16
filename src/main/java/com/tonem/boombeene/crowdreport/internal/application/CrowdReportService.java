@@ -20,6 +20,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +34,7 @@ public class CrowdReportService {
     private final CrowdReportCooldownMarker cooldownMarker;
 
     private static final int CONGESTION_WINDOW_MINUTES = 30;
+    private static final int RECENT_COMMENTS_LIMIT = 5;
 
     @Transactional
     public CrowdReportDto report(Long userId, CrowdReportRequest request) {
@@ -56,7 +58,7 @@ public class CrowdReportService {
 
         try {
             CrowdReport saved = crowdReportRepository.save(
-                    CrowdReport.create(request.storeId(), userId, request.level()));
+                    CrowdReport.create(request.storeId(), userId, request.level(), request.comment()));
 
             // 혼잡도 리포트 생성 event 발행
             eventPublisher.publishEvent(new CrowdReportCompleted(saved.getId(), userId, request.storeId()));
@@ -86,7 +88,13 @@ public class CrowdReportService {
             return CongestionResult.none(distanceMeters);
         }
 
-        return CongestionResult.of(getMostSelectedLevel(levels), levels.size(), distanceMeters);
+        var comments = crowdReportRepository.findRecentComments(
+                storeId,
+                cutoff,
+                PageRequest.of(0, RECENT_COMMENTS_LIMIT)
+        );
+
+        return CongestionResult.of(getMostSelectedLevel(levels), levels.size(), distanceMeters, comments);
     }
 
     // 선택된 개수 -> level 의 priority 순으로 비교하여 level 추출
