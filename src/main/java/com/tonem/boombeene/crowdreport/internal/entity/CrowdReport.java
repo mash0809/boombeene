@@ -43,11 +43,18 @@ public class CrowdReport {
         this.storeId = storeId;
         this.userId = userId;
         this.level = level;
-        this.comment = comment;
+        this.comment = normalizeComment(comment);
         this.createdAt = LocalDateTime.now();
     }
 
     public static CrowdReport create(Long storeId, Long userId, CongestionLevel level, String comment) {
         return new CrowdReport(storeId, userId, level, comment);
+    }
+
+    private static String normalizeComment(String comment) {
+        if (comment == null || comment.isBlank()) {
+            return null;
+        }
+        return comment.trim();
     }
 }

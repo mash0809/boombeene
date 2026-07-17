@@ -19,7 +19,7 @@ public interface CrowdReportRepository extends JpaRepository<CrowdReport, Long> 
 
     @Query("SELECT c.comment FROM CrowdReport c "
             + "WHERE c.storeId = :storeId AND c.createdAt > :cutoff "
-            + "AND c.comment IS NOT NULL AND c.comment <> '' "
+            + "AND c.comment IS NOT NULL AND TRIM(c.comment) <> '' "
             + "ORDER BY c.createdAt DESC, c.id DESC")
     List<String> findRecentComments(
             @Param("storeId") Long storeId,
