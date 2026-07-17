@@ -20,6 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,7 +53,14 @@ class CrowdReportServiceTest {
     @Test
     @DisplayName("제보를 저장하고 완료 이벤트를 발행한다")
     void reportSavesCrowdReportAndPublishesCompletedEvent() {
-        var request = new CrowdReportRequest(1L, 37.5662952, 126.9779451, 0.0, CongestionLevel.NORMAL);
+        var request = new CrowdReportRequest(
+                1L,
+                37.5662952,
+                126.9779451,
+                0.0,
+                CongestionLevel.NORMAL,
+                "좌석이 여유로워요"
+        );
 
         when(storeApi.getById(1L)).thenReturn(new StoreInfo(1L, 37.5662952, 126.9779451));
         when(cooldownMarker.tryMark(10L, 1L)).thenReturn(true);
@@ -71,6 +79,7 @@ class CrowdReportServiceTest {
         assertThat(reportCaptor.getValue().getStoreId()).isEqualTo(1L);
         assertThat(reportCaptor.getValue().getUserId()).isEqualTo(10L);
         assertThat(reportCaptor.getValue().getLevel()).isEqualTo(CongestionLevel.NORMAL);
+        assertThat(reportCaptor.getValue().getComment()).isEqualTo("좌석이 여유로워요");
 
         var eventCaptor = ArgumentCaptor.forClass(CrowdReportCompleted.class);
         verify(eventPublisher).publishEvent(eventCaptor.capture());
@@ -81,7 +90,7 @@ class CrowdReportServiceTest {
     @Test
     @DisplayName("사용자 위치가 매장과 너무 멀면 예외를 던진다")
     void reportThrowsWhenUserLocationIsTooFar() {
-        var request = new CrowdReportRequest(1L, 37.5662952, 126.9779451, 0.0, CongestionLevel.NORMAL);
+        var request = new CrowdReportRequest(1L, 37.5662952, 126.9779451, 0.0, CongestionLevel.NORMAL, null);
         when(storeApi.getById(1L)).thenReturn(new StoreInfo(1L, 37.5657037, 126.9768616));
 
         assertThatThrownBy(() -> crowdReportService.report(10L, request))
@@ -95,7 +104,7 @@ class CrowdReportServiceTest {
     @Test
     @DisplayName("쿨다운이 활성화된 상태면 예외를 던진다")
     void reportThrowsWhenCooldownIsActive() {
-        var request = new CrowdReportRequest(1L, 37.5662952, 126.9779451, 0.0, CongestionLevel.NORMAL);
+        var request = new CrowdReportRequest(1L, 37.5662952, 126.9779451, 0.0, CongestionLevel.NORMAL, null);
         when(storeApi.getById(1L)).thenReturn(new StoreInfo(1L, 37.5662952, 126.9779451));
         when(cooldownMarker.tryMark(10L, 1L)).thenReturn(false);
 
@@ -109,7 +118,7 @@ class CrowdReportServiceTest {
     @Test
     @DisplayName("저장에 실패하면 쿨다운을 취소한다")
     void reportCancelsCooldownWhenSaveFails() {
-        var request = new CrowdReportRequest(1L, 37.5662952, 126.9779451, 0.0, CongestionLevel.NORMAL);
+        var request = new CrowdReportRequest(1L, 37.5662952, 126.9779451, 0.0, CongestionLevel.NORMAL, null);
         var saveFailure = new RuntimeException("save failed");
         when(storeApi.getById(1L)).thenReturn(new StoreInfo(1L, 37.5662952, 126.9779451));
         when(cooldownMarker.tryMark(10L, 1L)).thenReturn(true);
@@ -134,6 +143,11 @@ class CrowdReportServiceTest {
                         CongestionLevel.NORMAL,
                         CongestionLevel.COMFORTABLE
                 ));
+        when(crowdReportRepository.findRecentComments(
+                eq(1L),
+                any(LocalDateTime.class),
+                any(Pageable.class)
+        )).thenReturn(List.of("방금 자리가 났어요", "조금 붐벼요"));
 
         var result = crowdReportService.getCongestion(1L, 37.5662952, 126.9779451);
 
@@ -141,6 +155,7 @@ class CrowdReportServiceTest {
         // 가장 개수가 많으면서 level 의 priority 가 높은 순으로 정렬하여 추출
         assertThat(result.level()).isEqualTo(CongestionLevel.CROWDED);
         assertThat(result.distanceMeters()).isZero();
+        assertThat(result.comments()).containsExactly("방금 자리가 났어요", "조금 붐벼요");
     }
 
     @Test
@@ -155,5 +170,11 @@ class CrowdReportServiceTest {
         assertThat(result.count()).isZero();
         assertThat(result.level()).isNull();
         assertThat(result.distanceMeters()).isZero();
+        assertThat(result.comments()).isEmpty();
+        verify(crowdReportRepository, never()).findRecentComments(
+                anyLong(),
+                any(LocalDateTime.class),
+                any(Pageable.class)
+        );
     }
 }

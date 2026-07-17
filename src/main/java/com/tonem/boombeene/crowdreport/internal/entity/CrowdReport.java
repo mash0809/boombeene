@@ -33,17 +33,28 @@ public class CrowdReport {
     @Column(nullable = false, length = 20)
     private CongestionLevel level;
 
+    @Column(length = 50)
+    private String comment;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    private CrowdReport(Long storeId, Long userId, CongestionLevel level) {
+    private CrowdReport(Long storeId, Long userId, CongestionLevel level, String comment) {
         this.storeId = storeId;
         this.userId = userId;
         this.level = level;
+        this.comment = normalizeComment(comment);
         this.createdAt = LocalDateTime.now();
     }
 
-    public static CrowdReport create(Long storeId, Long userId, CongestionLevel level) {
-        return new CrowdReport(storeId, userId, level);
+    public static CrowdReport create(Long storeId, Long userId, CongestionLevel level, String comment) {
+        return new CrowdReport(storeId, userId, level, comment);
+    }
+
+    private static String normalizeComment(String comment) {
+        if (comment == null || comment.isBlank()) {
+            return null;
+        }
+        return comment.trim();
     }
 }
