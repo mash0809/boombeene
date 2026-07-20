@@ -1,5 +1,7 @@
 package com.tonem.boombeene.crowdreport.internal.application;
 
+import com.tonem.boombeene.common.exception.EntityNotFoundException;
+import com.tonem.boombeene.crowdreport.internal.dto.CongestionSample;
 import com.tonem.boombeene.crowdreport.internal.dto.CrowdReportDto;
 import com.tonem.boombeene.crowdreport.internal.dto.CrowdReportRequest;
 import com.tonem.boombeene.crowdreport.internal.entity.CongestionLevel;
@@ -10,7 +12,10 @@ import com.tonem.boombeene.crowdreport.internal.exception.LocationTooFarExceptio
 import com.tonem.boombeene.crowdreport.internal.repository.CrowdReportRepository;
 import com.tonem.boombeene.store.StoreApi;
 import com.tonem.boombeene.store.StoreInfo;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,6 +34,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -176,5 +182,121 @@ class CrowdReportServiceTest {
                 any(LocalDateTime.class),
                 any(Pageable.class)
         );
+    }
+
+    @Test
+    @DisplayName("요일과 시간대별 평균 혼잡도와 표본 수를 반환한다")
+    void getWeeklyCongestionReturnsAveragesAndCountsByDayAndHour() {
+        LocalDate monday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate tuesday = monday.plusDays(1);
+        when(crowdReportRepository.findByStoreIdAndCreatedAtAfter(eq(1L), any(LocalDateTime.class)))
+                .thenReturn(List.of(
+                        sample(CongestionLevel.CROWDED, monday.atTime(13, 10)),
+                        sample(CongestionLevel.CROWDED, monday.atTime(13, 20)),
+                        sample(CongestionLevel.NORMAL, monday.atTime(13, 30)),
+                        sample(CongestionLevel.COMFORTABLE, monday.atTime(18, 0)),
+                        sample(CongestionLevel.NORMAL, tuesday.atTime(13, 0))
+                ));
+
+        var result = crowdReportService.getWeeklyCongestion(1L);
+
+        assertThat(result).hasSize(7);
+        var mondayResult = result.get(DayOfWeek.MONDAY.ordinal());
+        assertThat(mondayResult.day()).isEqualTo(DayOfWeek.MONDAY);
+        assertThat(mondayResult.level()).isEqualTo(CongestionLevel.NORMAL);
+        assertThat(mondayResult.count()).isEqualTo(4);
+        assertThat(mondayResult.hourly()).hasSize(24);
+        assertThat(mondayResult.hourly().get(13).level()).isEqualTo(CongestionLevel.CROWDED);
+        assertThat(mondayResult.hourly().get(13).count()).isEqualTo(3);
+        assertThat(mondayResult.hourly().get(18).level()).isEqualTo(CongestionLevel.COMFORTABLE);
+        assertThat(mondayResult.hourly().get(18).count()).isEqualTo(1);
+
+        var tuesdayResult = result.get(DayOfWeek.TUESDAY.ordinal());
+        assertThat(tuesdayResult.level()).isEqualTo(CongestionLevel.NORMAL);
+        assertThat(tuesdayResult.count()).isEqualTo(1);
+        assertThat(tuesdayResult.hourly().get(13).count()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("평균 혼잡도가 중간값이면 높은 레벨로 반올림한다")
+    void getWeeklyCongestionRoundsHalfUp() {
+        LocalDate monday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        when(crowdReportRepository.findByStoreIdAndCreatedAtAfter(eq(1L), any(LocalDateTime.class)))
+                .thenReturn(List.of(
+                        sample(CongestionLevel.COMFORTABLE, monday.atTime(10, 0)),
+                        sample(CongestionLevel.NORMAL, monday.atTime(10, 30))
+                ));
+
+        var mondayResult = crowdReportService.getWeeklyCongestion(1L).get(DayOfWeek.MONDAY.ordinal());
+
+        assertThat(mondayResult.level()).isEqualTo(CongestionLevel.NORMAL);
+        assertThat(mondayResult.hourly().get(10).level()).isEqualTo(CongestionLevel.NORMAL);
+    }
+
+    @Test
+    @DisplayName("제보가 없는 요일과 시간대는 데이터 없음 상태를 반환한다")
+    void getWeeklyCongestionReturnsNoDataForEmptyDaysAndHours() {
+        when(crowdReportRepository.findByStoreIdAndCreatedAtAfter(eq(1L), any(LocalDateTime.class)))
+                .thenReturn(List.of());
+
+        var result = crowdReportService.getWeeklyCongestion(1L);
+
+        assertThat(result).hasSize(7)
+                .allSatisfy(day -> {
+                    assertThat(day.level()).isNull();
+                    assertThat(day.count()).isZero();
+                    assertThat(day.hourly()).hasSize(24)
+                            .allSatisfy(hour -> {
+                                assertThat(hour.level()).isNull();
+                                assertThat(hour.count()).isZero();
+                            });
+                });
+    }
+
+    @Test
+    @DisplayName("주간 혼잡도 조회 시 28일 전 자정을 조회 기준으로 사용한다")
+    void getWeeklyCongestionUsesTwentyEightDaysAgoAsCutoff() {
+        when(crowdReportRepository.findByStoreIdAndCreatedAtAfter(eq(1L), any(LocalDateTime.class)))
+                .thenReturn(List.of());
+        var cutoffCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
+        LocalDate expectedDate = LocalDate.now().minusDays(28);
+
+        crowdReportService.getWeeklyCongestion(1L);
+
+        verify(crowdReportRepository).findByStoreIdAndCreatedAtAfter(eq(1L), cutoffCaptor.capture());
+        assertThat(cutoffCaptor.getValue()).isEqualTo(expectedDate.atStartOfDay());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 매장의 주간 혼잡도를 조회하면 예외를 던진다")
+    void getWeeklyCongestionThrowsWhenStoreDoesNotExist() {
+        var exception = new EntityNotFoundException("Store", 1L);
+        doThrow(exception).when(storeApi).validateExists(1L);
+
+        assertThatThrownBy(() -> crowdReportService.getWeeklyCongestion(1L))
+                .isSameAs(exception);
+
+        verify(crowdReportRepository, never())
+                .findByStoreIdAndCreatedAtAfter(anyLong(), any(LocalDateTime.class));
+    }
+
+    private CongestionSample sample(CongestionLevel level, LocalDateTime createdAt) {
+        return new TestCongestionSample(level, createdAt);
+    }
+
+    private record TestCongestionSample(
+            CongestionLevel level,
+            LocalDateTime createdAt
+    ) implements CongestionSample {
+
+        @Override
+        public CongestionLevel getLevel() {
+            return level;
+        }
+
+        @Override
+        public LocalDateTime getCreatedAt() {
+            return createdAt;
+        }
     }
 }

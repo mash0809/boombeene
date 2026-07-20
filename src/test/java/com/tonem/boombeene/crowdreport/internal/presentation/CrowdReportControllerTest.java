@@ -4,8 +4,11 @@ import com.tonem.boombeene.crowdreport.internal.application.CrowdReportService;
 import com.tonem.boombeene.crowdreport.internal.dto.CongestionResult;
 import com.tonem.boombeene.crowdreport.internal.dto.CrowdReportDto;
 import com.tonem.boombeene.crowdreport.internal.dto.CrowdReportRequest;
+import com.tonem.boombeene.crowdreport.internal.dto.HourlyCongestion;
+import com.tonem.boombeene.crowdreport.internal.dto.WeeklyCongestionResult;
 import com.tonem.boombeene.crowdreport.internal.entity.CongestionLevel;
 import com.tonem.boombeene.crowdreport.internal.presentation.CrowdReportController;
+import java.time.DayOfWeek;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -62,5 +65,24 @@ class CrowdReportControllerTest {
         assertThat(response.count()).isEqualTo(3);
         assertThat(response.distanceMeters()).isEqualTo(10.5);
         assertThat(response.comments()).containsExactly("줄이 길어요", "곧 자리가 날 것 같아요");
+    }
+
+    @Test
+    @DisplayName("서비스 DTO로부터 요일별 혼잡도 응답을 생성한다")
+    void getWeeklyCongestionCreatesResponsesFromServiceDtos() {
+        var hourly = List.of(new HourlyCongestion(13, CongestionLevel.CROWDED, 3));
+        when(crowdReportService.getWeeklyCongestion(1L)).thenReturn(List.of(
+                new WeeklyCongestionResult(DayOfWeek.MONDAY, CongestionLevel.CROWDED, 3, hourly)
+        ));
+
+        var responses = crowdReportController.getWeeklyCongestion(1L);
+
+        assertThat(responses).hasSize(1);
+        var response = responses.getFirst();
+        assertThat(response.storeId()).isEqualTo(1L);
+        assertThat(response.day()).isEqualTo(DayOfWeek.MONDAY);
+        assertThat(response.level()).isEqualTo(CongestionLevel.CROWDED);
+        assertThat(response.count()).isEqualTo(3);
+        assertThat(response.hourly()).containsExactlyElementsOf(hourly);
     }
 }
