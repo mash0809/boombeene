@@ -16,4 +16,10 @@ public class StoreApi {
                 .map(store -> new StoreInfo(store.getId(), store.getLatitude(), store.getLongitude()))
                 .orElseThrow(() -> new EntityNotFoundException("Store", storeId));
     }
+
+    public void validateExists(Long storeId) {
+        if (!storeRepository.existsById(storeId)) {
+            throw new EntityNotFoundException("Store", storeId);
+        }
+    }
 }

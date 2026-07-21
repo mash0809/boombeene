@@ -1,8 +1,11 @@
 package com.tonem.boombeene.crowdreport.internal.application;
 
 import com.tonem.boombeene.crowdreport.internal.dto.CongestionResult;
+import com.tonem.boombeene.crowdreport.internal.dto.CongestionSample;
 import com.tonem.boombeene.crowdreport.internal.dto.CrowdReportDto;
 import com.tonem.boombeene.crowdreport.internal.dto.CrowdReportRequest;
+import com.tonem.boombeene.crowdreport.internal.dto.HourlyCongestion;
+import com.tonem.boombeene.crowdreport.internal.dto.WeeklyCongestionResult;
 import com.tonem.boombeene.crowdreport.internal.entity.CongestionLevel;
 import com.tonem.boombeene.crowdreport.internal.entity.CrowdReport;
 import com.tonem.boombeene.crowdreport.CrowdReportCompleted;
@@ -12,12 +15,16 @@ import com.tonem.boombeene.crowdreport.internal.repository.CrowdReportRepository
 import com.tonem.boombeene.crowdreport.internal.util.HaversineUtils;
 import com.tonem.boombeene.store.StoreApi;
 import com.tonem.boombeene.store.StoreInfo;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
@@ -35,6 +42,7 @@ public class CrowdReportService {
 
     private static final int CONGESTION_WINDOW_MINUTES = 30;
     private static final int RECENT_COMMENTS_LIMIT = 5;
+    private static final int WEEKLY_WINDOW_DAYS = 28;
 
     @Transactional
     public CrowdReportDto report(Long userId, CrowdReportRequest request) {
@@ -95,6 +103,62 @@ public class CrowdReportService {
         );
 
         return CongestionResult.of(getMostSelectedLevel(levels), levels.size(), distanceMeters, comments);
+    }
+
+    @Transactional(readOnly = true)
+    public List<WeeklyCongestionResult> getWeeklyCongestion(Long storeId) {
+        storeApi.validateExists(storeId);
+
+        LocalDateTime cutoff = LocalDate.now().minusDays(WEEKLY_WINDOW_DAYS).atStartOfDay();
+        var records = crowdReportRepository.findByStoreIdAndCreatedAtAfter(storeId, cutoff);
+
+        Map<DayOfWeek, List<CongestionLevel>> dailyLevels = records.stream()
+                .collect(Collectors.groupingBy(
+                        record -> record.getCreatedAt().getDayOfWeek(),
+                        Collectors.mapping(CongestionSample::getLevel, Collectors.toList())
+                ));
+
+        Map<DayOfWeek, Map<Integer, List<CongestionLevel>>> hourlyLevels = records.stream()
+                .collect(Collectors.groupingBy(
+                        record -> record.getCreatedAt().getDayOfWeek(),
+                        Collectors.groupingBy(
+                                record -> record.getCreatedAt().getHour(),
+                                Collectors.mapping(CongestionSample::getLevel, Collectors.toList())
+                        )
+                ));
+
+        return Arrays.stream(DayOfWeek.values())
+                .map(day -> {
+                    List<CongestionLevel> levels = dailyLevels.getOrDefault(day, List.of());
+                    return new WeeklyCongestionResult(
+                            day,
+                            averageLevel(levels),
+                            levels.size(),
+                            buildHourly(hourlyLevels.getOrDefault(day, Map.of()))
+                    );
+                })
+                .toList();
+    }
+
+    private List<HourlyCongestion> buildHourly(Map<Integer, List<CongestionLevel>> hourGroups) {
+        return IntStream.range(0, 24)
+                .mapToObj(hour -> {
+                    List<CongestionLevel> levels = hourGroups.getOrDefault(hour, List.of());
+                    return new HourlyCongestion(hour, averageLevel(levels), levels.size());
+                })
+                .toList();
+    }
+
+    // 레벨 priority 평균을 반올림해 레벨로 환산한다. 리포트가 없으면 데이터 없음(null)으로 반환한다.
+    private CongestionLevel averageLevel(List<CongestionLevel> levels) {
+        if (levels.isEmpty()) {
+            return null;
+        }
+        double average = levels.stream()
+                .mapToInt(CongestionLevel::getPriority)
+                .average()
+                .orElseThrow();
+        return CongestionLevel.fromPriority((int) Math.round(average));
     }
 
     // 선택된 개수 -> level 의 priority 순으로 비교하여 level 추출

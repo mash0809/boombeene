@@ -4,7 +4,9 @@ import com.tonem.boombeene.crowdreport.internal.application.CrowdReportService;
 import com.tonem.boombeene.crowdreport.internal.dto.CrowdReportRequest;
 import com.tonem.boombeene.crowdreport.internal.dto.CrowdReportResponse;
 import com.tonem.boombeene.crowdreport.internal.dto.StoreCongestionResponse;
+import com.tonem.boombeene.crowdreport.internal.dto.WeeklyCongestionResponse;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -39,5 +41,12 @@ public class CrowdReportController {
             @RequestParam double longitude
     ) {
         return StoreCongestionResponse.from(storeId, crowdReportService.getCongestion(storeId, latitude, longitude));
+    }
+
+    @GetMapping("/stores/{storeId}/congestion/weekly")
+    public List<WeeklyCongestionResponse> getWeeklyCongestion(@PathVariable Long storeId) {
+        return crowdReportService.getWeeklyCongestion(storeId).stream()
+                .map(result -> WeeklyCongestionResponse.from(storeId, result))
+                .toList();
     }
 }

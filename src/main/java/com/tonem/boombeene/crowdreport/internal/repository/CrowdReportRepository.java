@@ -1,5 +1,6 @@
 package com.tonem.boombeene.crowdreport.internal.repository;
 
+import com.tonem.boombeene.crowdreport.internal.dto.CongestionSample;
 import com.tonem.boombeene.crowdreport.internal.entity.CongestionLevel;
 import com.tonem.boombeene.crowdreport.internal.entity.CrowdReport;
 import java.time.LocalDateTime;
@@ -10,6 +11,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface CrowdReportRepository extends JpaRepository<CrowdReport, Long> {
+
+    List<CongestionSample> findByStoreIdAndCreatedAtAfter(Long storeId, LocalDateTime cutoff);
 
     @Query("SELECT c.level FROM CrowdReport c WHERE c.storeId = :storeId AND c.createdAt > :cutoff")
     List<CongestionLevel> findLevelsByStoreIdAndCreatedAtAfter(
