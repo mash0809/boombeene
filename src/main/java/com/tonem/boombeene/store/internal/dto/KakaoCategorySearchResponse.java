@@ -2,5 +2,5 @@ package com.tonem.boombeene.store.internal.dto;
 
 import java.util.List;
 
-public record KakaoCategorySearchResponse(List<KakaoDocument> documents) {
+public record KakaoCategorySearchResponse(KakaoMeta meta, List<KakaoDocument> documents) {
 }
