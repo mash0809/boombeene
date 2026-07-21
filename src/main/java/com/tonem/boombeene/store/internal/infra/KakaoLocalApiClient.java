@@ -11,6 +11,8 @@ public interface KakaoLocalApiClient {
             @RequestParam("y") double latitude,
             @RequestParam("x") double longitude,
             @RequestParam("radius") int radius,
-            @RequestParam("category_group_code") String categoryGroupCode
+            @RequestParam("category_group_code") String categoryGroupCode,
+            @RequestParam("page") int page,
+            @RequestParam("size") int size
     );
 }
