@@ -94,6 +94,25 @@ class StoreServiceTest {
     }
 
     @Test
+    @DisplayName("같은 배치에 중복된 장소는 첫 번째 문서 기준으로 한 번만 저장한다")
+    void upsertAllDeduplicatesNewStoresByPlaceId() {
+        var firstDocument = new KakaoDocument("12345", "이전 이름", "127.0", "37.0");
+        var lastDocument = new KakaoDocument("12345", "최신 이름", "127.1", "37.1");
+        when(storeRepository.findByPlaceIdIn(List.of("12345"))).thenReturn(List.of());
+
+        var result = storeService.upsertAll(List.of(firstDocument, lastDocument), StoreCategory.RESTAURANT);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().name()).isEqualTo("이전 이름");
+        assertThat(result.getFirst().latitude()).isEqualTo(37.0);
+        assertThat(result.getFirst().longitude()).isEqualTo(127.0);
+
+        var savedCaptor = ArgumentCaptor.forClass(List.class);
+        verify(storeRepository).saveAll(savedCaptor.capture());
+        assertThat(savedCaptor.getValue()).hasSize(1);
+    }
+
+    @Test
     @DisplayName("잘못된 좌표값은 KakaoApiException으로 감싸서 던진다")
     void upsertAllWrapsInvalidCoordinateAsKakaoApiException() {
         var document = new KakaoDocument("12345", "테스트 식당", "", "37.498095");

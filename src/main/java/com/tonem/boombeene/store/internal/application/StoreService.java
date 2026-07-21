@@ -11,8 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -28,13 +30,14 @@ public class StoreService {
             return List.of();
         }
 
-        List<String> placeIds = documents.stream().map(KakaoDocument::id).toList();
+        List<KakaoDocument> uniqueDocuments = deduplicateByPlaceId(documents);
+        List<String> placeIds = uniqueDocuments.stream().map(KakaoDocument::id).toList();
         Map<String, Store> existingStoresByPlaceId = storeRepository.findByPlaceIdIn(placeIds).stream()
                 .collect(Collectors.toMap(Store::getPlaceId, Function.identity()));
 
         List<Store> newStores = new ArrayList<>();
         List<Store> allStores = new ArrayList<>();
-        for (KakaoDocument document : documents) {
+        for (KakaoDocument document : uniqueDocuments) {
             double latitude = parseCoordinate(document.y());
             double longitude = parseCoordinate(document.x());
 
@@ -54,6 +57,18 @@ public class StoreService {
         }
 
         return allStores.stream().map(StoreDto::from).toList();
+    }
+
+    // documents 내에 같은 장소가 중복되어 있는 경우를 위해 중복 제거
+    private List<KakaoDocument> deduplicateByPlaceId(List<KakaoDocument> documents) {
+        Set<String> placeIds = new HashSet<>();
+        List<KakaoDocument> uniqueDocuments = new ArrayList<>();
+        for (KakaoDocument document : documents) {
+            if (placeIds.add(document.id())) {
+                uniqueDocuments.add(document);
+            }
+        }
+        return uniqueDocuments;
     }
 
     private double parseCoordinate(String coordinate) {
